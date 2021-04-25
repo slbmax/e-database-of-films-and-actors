@@ -12,7 +12,7 @@ namespace ConsoleApp
         {
             public string fullnames;
             public string countries;
-            public string revievs;
+            public string reviews;
             public string titles;
             public string genres;
         }
@@ -23,7 +23,8 @@ namespace ConsoleApp
                 fullnames = @"C:\Users\Макс\myprojects\progbase3\data\generator\names.txt",
                 countries = @"C:\Users\Макс\myprojects\progbase3\data\generator\countries.txt",
                 titles = @"C:\Users\Макс\myprojects\progbase3\data\generator\titles.txt",
-                genres = @"C:\Users\Макс\myprojects\progbase3\data\generator\genres.txt"
+                genres = @"C:\Users\Макс\myprojects\progbase3\data\generator\genres.txt",
+                reviews = @"C:\Users\Макс\myprojects\progbase3\data\generator\reviews.txt"
             };
 
             string databaseFileName = @"C:\Users\Макс\myprojects\progbase3\data\data.db";
@@ -42,23 +43,30 @@ namespace ConsoleApp
                 1.Actor
                 2.Film
                 3.Review
-                4.Exit");
+                4.User
+                5.Exit");
                 string input = Console.ReadLine(); 
                 switch (input)
                 {
                     case "1":
                         ActorRepository actorRepository = new ActorRepository(connection);
                         ProcessActorsGenerator(actorRepository, dataFiles);
-                        Console.WriteLine("Successfully");
+                        Console.WriteLine("Actors were generated successfully");
                         break;
                     case "2":
                         FilmRepository filmRepository = new FilmRepository(connection);
                         ProcessFilmsGenerator(filmRepository, dataFiles);
+                        Console.WriteLine("Films were generated successfully");
                         break;
                     case "3":
-
+                        ReviewRepository reviewRepository = new ReviewRepository(connection);
+                        ProcessReviewsGenerator(reviewRepository, dataFiles);
+                        Console.WriteLine("Reviews were generated successfully");
                         break;
                     case "4":
+                        Console.WriteLine("Users were generated successfully");
+                        break;
+                    case "5":
                         exit = true;
                         break;
                     default:
@@ -132,6 +140,43 @@ namespace ConsoleApp
                 repository.Insert(film);
             }
         }
+        static void ProcessReviewsGenerator(ReviewRepository repository, DatasetsFilePathes dataFiles)
+        {
+            int amount = GetAmountOfEntities();
+            DateTime createdAtL, createdAtH;
+            while(true)
+            {
+                Console.WriteLine("Enter the range of reviews` data creation (only in range from 1910 to 2020)\n1 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL.Year<1910 || createdAtL.Year>2020)
+                {
+                    Console.Error.WriteLine("Error: invalid minimum year parameter");
+                    continue;
+                }
+                Console.WriteLine("2 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out createdAtH) || createdAtH<createdAtL || createdAtH.Year>2020)
+                {
+                    Console.Error.WriteLine("Error: invalid maximum year parameter");
+                    continue;
+                }
+                break;
+            }
+            string[] reviews = File.ReadAllText(dataFiles.reviews).Split("\n");
+            Random rand = new Random();
+            TimeSpan range = createdAtH - createdAtL;
+            for(int i = 0; i<amount; i++)
+            {
+                Review review = new Review();
+                int reviewPos = rand.Next(0,reviews.Length);
+                review.content = reviews[reviewPos];
+                if(reviewPos<reviews.Length/2.0)
+                    review.rating=rand.Next(5,11);
+                else
+                    review.rating = rand.Next(1,6);
+                TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
+                review.createdAt = createdAtL + randDate;
+                repository.Insert(review);
+            }
+        }
         static int GetAmountOfEntities()
         {
             while(true)
@@ -141,6 +186,11 @@ namespace ConsoleApp
                 if(!int.TryParse(Console.ReadLine(), out amount))
                 {
                     Console.Error.WriteLine("Error: invalid input");
+                    continue;
+                }
+                if(amount <= 0)
+                {
+                    Console.Error.WriteLine("Error: invalid amount");
                     continue;
                 }
                 return amount;
