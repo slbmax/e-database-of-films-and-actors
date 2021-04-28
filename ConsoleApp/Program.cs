@@ -15,6 +15,8 @@ namespace ConsoleApp
             public string reviews;
             public string titles;
             public string genres;
+            public string usernames;
+            public string passwords;
         }
         static void Main(string[] args)
         {
@@ -24,7 +26,9 @@ namespace ConsoleApp
                 countries = @"C:\Users\Макс\myprojects\progbase3\data\generator\countries.txt",
                 titles = @"C:\Users\Макс\myprojects\progbase3\data\generator\titles.txt",
                 genres = @"C:\Users\Макс\myprojects\progbase3\data\generator\genres.txt",
-                reviews = @"C:\Users\Макс\myprojects\progbase3\data\generator\reviews.txt"
+                reviews = @"C:\Users\Макс\myprojects\progbase3\data\generator\reviews.txt",
+                usernames = @"C:\Users\Макс\myprojects\progbase3\data\generator\usernames.txt",
+                passwords = @"C:\Users\Макс\myprojects\progbase3\data\generator\passwords.txt"
             };
 
             string databaseFileName = @"C:\Users\Макс\myprojects\progbase3\data\data.db";
@@ -64,6 +68,8 @@ namespace ConsoleApp
                         Console.WriteLine("Reviews were generated successfully");
                         break;
                     case "4":
+                        UserRepository userRepository = new UserRepository(connection);
+                        ProcessUsersGenerator(userRepository, dataFiles);
                         Console.WriteLine("Users were generated successfully");
                         break;
                     case "5":
@@ -146,16 +152,16 @@ namespace ConsoleApp
             DateTime createdAtL, createdAtH;
             while(true)
             {
-                Console.WriteLine("Enter the range of reviews` data creation (only in range from 1910 to 2020)\n1 num:");
+                Console.WriteLine("Enter the range of reviews` creation date (only in range from 1910 to 2020)\n1 num:");
                 if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL.Year<1910 || createdAtL.Year>2020)
                 {
-                    Console.Error.WriteLine("Error: invalid minimum year parameter");
+                    Console.Error.WriteLine("Error: invalid first date");
                     continue;
                 }
                 Console.WriteLine("2 num:");
                 if(!DateTime.TryParse(Console.ReadLine(), out createdAtH) || createdAtH<createdAtL || createdAtH.Year>2020)
                 {
-                    Console.Error.WriteLine("Error: invalid maximum year parameter");
+                    Console.Error.WriteLine("Error: invalid second date");
                     continue;
                 }
                 break;
@@ -175,6 +181,49 @@ namespace ConsoleApp
                 TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
                 review.createdAt = createdAtL + randDate;
                 repository.Insert(review);
+            }
+        }
+        static void ProcessUsersGenerator(UserRepository repository, DatasetsFilePathes dataFiles)
+        {
+            int amount;
+            DateTime regL, regH;
+            amount = GetAmountOfEntities();
+            while(true)
+            {
+                Console.WriteLine("Enter the range of users` registration date (only in range from 1910 to 2021)\n1 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out regL) || regL.Year<1910 || regL.Year>2021)
+                {
+                    Console.Error.WriteLine("Error: invalid first date");
+                    continue;
+                }
+                Console.WriteLine("2 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out regH) || regH<regL || regH.Year>2021)
+                {
+                    Console.Error.WriteLine("Error: invalid second date");
+                    continue;
+                }
+                break;
+            }
+            string[] usernames = File.ReadAllText(dataFiles.usernames).Split("\n");
+            string[] passwords = File.ReadAllText(dataFiles.passwords).Split("\n");
+            string[] fullnames = File.ReadAllText(dataFiles.fullnames).Split("\n");
+            int[] roles = new int[]{0,0,0,0,1,0,0,0,0};
+            Random rand = new Random();
+            TimeSpan range = regH - regL;
+            for(int i = 0; i<amount; i++)
+            {
+                User user = new User();
+                user.username=usernames[rand.Next(0,usernames.Length)]+i;
+                user.password=passwords[rand.Next(0,passwords.Length)];
+                user.fullname=fullnames[rand.Next(0,fullnames.Length)];
+                int role = roles[rand.Next(0,roles.Length)];
+                if(role == 1)
+                    user.role = "moderator";
+                else
+                    user.role = "user";
+                TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
+                user.registrationDate = regL + randDate;
+                repository.Insert(user);
             }
         }
         static int GetAmountOfEntities()
@@ -206,6 +255,7 @@ namespace ConsoleApp
         public string fullname;
         public string role;
         public DateTime registrationDate;
+        public Review[] reviews;
         
     }
     class Actor
@@ -214,6 +264,7 @@ namespace ConsoleApp
         public string fullname;
         public string country;
         public int age;
+        public Film[] films;
         public Actor()
         {
             this.id = 0;
@@ -238,6 +289,8 @@ namespace ConsoleApp
         public string title;
         public string genre;
         public int releaseYear;
+        public Review[] reviews;
+        public Actor[] actors;
         public Film()
         {
             this.id = 0;
@@ -251,6 +304,10 @@ namespace ConsoleApp
             this.genre = genre;
             this.releaseYear = releaseYear;
         }
+        public override string ToString()
+        {
+            return $"[{id}] {title} : {genre}; [{releaseYear}]";
+        }
     }
     class Review
     {
@@ -258,6 +315,8 @@ namespace ConsoleApp
         public string content;
         public int rating;
         public DateTime createdAt;
+        public int user_id;
+        public int film_id;
         public Review()
         {
             this.id = 0;
@@ -270,6 +329,18 @@ namespace ConsoleApp
             this.content = content;
             this.rating = rating;
             this.createdAt = createdAt;
+        }
+    }
+    class Role
+    {
+        public int id;
+        public int actor_id;
+        public int film_id;
+        public Role()
+        {
+            this.id = 0;
+            this.actor_id =0;
+            this.film_id =0;
         }
     }
     class ActorRepository
@@ -358,7 +429,7 @@ namespace ConsoleApp
         public List<Actor> GetExport(string valueX)
         {
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM posts WHERE user LIKE $valueX";
+            command.CommandText = @"SELECT * FROM actors WHERE user LIKE $valueX";
             command.Parameters.AddWithValue("$valueX", valueX);
 
             SqliteDataReader reader = command.ExecuteReader();
@@ -371,6 +442,14 @@ namespace ConsoleApp
             }
             reader.Close();
             return actorsToExport;
+        }
+        public bool Update(Actor actor)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"UPDATE actors SET /// WHERE id = $id";
+            command.Parameters.AddWithValue("$valueX", actor.country);
+            int nChanged = command.ExecuteNonQuery();
+            return nChanged == 1;
         }
     }
     class FilmRepository
@@ -474,7 +553,7 @@ namespace ConsoleApp
             return filmsToExport;
         }
     }
-     class ReviewRepository
+    class ReviewRepository
     {
         private SqliteConnection connection;
         public ReviewRepository(SqliteConnection connection)
@@ -574,5 +653,252 @@ namespace ConsoleApp
             reader.Close();
             return reviewsToExport;
         }
+        public Review[] GetAllAuthorReviews(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM reviews WHERE user_id = $id";
+            command.Parameters.AddWithValue("$id", id);
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Review> userReviews = new List<Review>();
+            while(reader.Read())
+            {
+                Review review = GetReview(reader);
+                
+                userReviews.Add(review);
+            }
+            reader.Close();
+            Review[] allUserReviews = new Review[userReviews.Count];
+            userReviews.CopyTo(allUserReviews);
+            return allUserReviews;
+        }
+        public Review[] GetAllFilmReviews(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM reviews WHERE film_id = $id";
+            command.Parameters.AddWithValue("$id", id);
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Review> filmReviews = new List<Review>();
+            while(reader.Read())
+            {
+                Review review = GetReview(reader);
+                
+                filmReviews.Add(review);
+            }
+            reader.Close();
+            Review[] allUserReviews = new Review[filmReviews.Count];
+            filmReviews.CopyTo(allUserReviews);
+            return allUserReviews;
+        }
+    }
+    class UserRepository
+    {
+        private SqliteConnection connection;
+        public UserRepository(SqliteConnection connection)
+        {
+            this.connection = connection;
+        }
+        private static User GetUser(SqliteDataReader reader)
+        {
+            User user = new User();
+            user.id = int.Parse(reader.GetString(0));
+            user.username = reader.GetString(1);
+            user.password = reader.GetString(2);
+            user.fullname = reader.GetString(3);
+            user.role = reader.GetString(4);
+            user.registrationDate = DateTime.Parse(reader.GetString(5));
+            return user;
+        }
+        public User GetById(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users WHERE id = $id";
+            command.Parameters.AddWithValue("$id", id);
+
+            SqliteDataReader reader = command.ExecuteReader();
+            User user = new User();
+            if(reader.Read())
+                user= GetUser(reader);
+            else
+                user = null;
+            reader.Close();
+            return user;
+        }
+        public int DeleteById(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"DELETE FROM users WHERE id = $id";
+            command.Parameters.AddWithValue("$id", id);
+
+            int result = command.ExecuteNonQuery();
+            return result;
+        }
+        public int Insert(User user)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText =@"INSERT INTO users (username, password, fullname, role, registrationDate)
+            VALUES ($username, $password, $fullname, $role, $registrationDate);
+            SELECT last_insert_rowid();";
+            command.Parameters.AddWithValue("$username", user.username);
+            command.Parameters.AddWithValue("$password",user.password);
+            command.Parameters.AddWithValue("$fullname", user.fullname);
+            command.Parameters.AddWithValue("$role",user.role);
+            command.Parameters.AddWithValue("$registrationDate",user.registrationDate);
+            long newId = (long)command.ExecuteScalar();
+            return (int)newId;
+        }
+        public int GetTotalPages()
+        {
+            const int pageSize = 10;
+            return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
+        }
+        private long GetCount()
+        {
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT COUNT(*) FROM users";
+            long count = (long)command.ExecuteScalar();
+            return count;
+        }
+        public List<User> GetPage(int page)
+        {
+            const int pageSize = 10;
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users LIMIT $pagesize OFFSET $offset";
+            command.Parameters.AddWithValue("$pagesize", pageSize);
+            command.Parameters.AddWithValue("$offset", pageSize*(page-1));
+
+            SqliteDataReader reader = command.ExecuteReader();
+            List<User> users = new List<User>();
+            while(reader.Read())
+            {
+                User user = new User();
+                
+                users.Add(user);
+            }
+            reader.Close();
+            return users;
+        }
+        public List<User> GetExport(string valueX)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users WHERE user LIKE $valueX";
+            command.Parameters.AddWithValue("$valueX", valueX);
+
+            SqliteDataReader reader = command.ExecuteReader();
+            List<User> usersToExport = new List<User>();
+            while(reader.Read())
+            {
+                User user = GetUser(reader);
+                
+                usersToExport.Add(user);
+            }
+            reader.Close();
+            return usersToExport;
+        }
+    }
+    class RoleRepository
+    {
+        private SqliteConnection connection;
+        public RoleRepository(SqliteConnection connection)
+        {
+            this.connection = connection;
+        }
+        private static Role GetRole(SqliteDataReader reader)
+        {
+            Role role = new Role();
+            role.id = int.Parse(reader.GetString(0));
+            role.actor_id = int.Parse(reader.GetString(2));
+            role.film_id = int.Parse(reader.GetString(1));
+            return role;
+        }
+        public Role GetById(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM roles WHERE id = $id";
+            command.Parameters.AddWithValue("$id", id);
+
+            SqliteDataReader reader = command.ExecuteReader();
+            Role role = new Role();
+            if(reader.Read())
+                role= GetRole(reader);
+            else
+                role = null;
+            reader.Close();
+            return role;
+        }
+        public int DeleteById(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"DELETE FROM roles WHERE id = $id";
+            command.Parameters.AddWithValue("$id", id);
+
+            int result = command.ExecuteNonQuery();
+            return result;
+        }
+        public int Insert(Role role)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText =@"INSERT INTO roles (film_id, actor_id)
+            VALUES ($film_id, $actor_id);
+            SELECT last_insert_rowid();";
+            command.Parameters.AddWithValue("$film_id", role.film_id);
+            command.Parameters.AddWithValue("$actor_id",role.actor_id);
+            long newId = (long)command.ExecuteScalar();
+            return (int)newId;
+        }
+        private static Actor GetActor(SqliteDataReader reader)
+        {
+            Actor actor = new Actor();
+            actor.id = int.Parse(reader.GetString(0));
+            actor.fullname = reader.GetString(1);
+            actor.country = reader.GetString(2);
+            actor.age = int.Parse(reader.GetString(3));
+            return actor;
+        }
+        public Film[] GetAllFilms(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText=@"SELECT films.id, title, genre, releaseYear
+                                FROM films, roles WHERE roles.actor_id=$id AND roles.film_id = films.id";
+            command.Parameters.AddWithValue("$film_id",id);
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Film> allFilms = new List<Film>();
+            while(reader.Read()) 
+            {
+                Film film = GetFilm(reader);
+                allFilms.Add(film);
+            }
+            reader.Close();
+            Film[] films = new Film[allFilms.Count];
+            allFilms.CopyTo(films);
+            return films;
+        }
+        public Actor[] GetCast(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText=@"SELECT actors.id, fullname, country, age
+                                FROM actors, roles WHERE roles.film_id=2 AND roles.actor_id = actors.id";
+            command.Parameters.AddWithValue("$film_id",id);
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Actor> cast = new List<Actor>();
+            while(reader.Read()) 
+            {
+                Actor actor = GetActor(reader);
+                cast.Add(actor);
+            }
+            reader.Close();
+            Actor[] allActors = new Actor[cast.Count];
+            cast.CopyTo(allActors);
+            return allActors;
+        }
+        private static Film GetFilm(SqliteDataReader reader)
+        {
+            Film film = new Film();
+            film.id = int.Parse(reader.GetString(0));
+            film.title = reader.GetString(1);
+            film.genre = reader.GetString(2);
+            film.releaseYear = int.Parse(reader.GetString(3));
+            return film;
+        }
+
     }
 }
