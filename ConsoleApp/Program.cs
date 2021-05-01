@@ -41,6 +41,7 @@ namespace ConsoleApp
                 Environment.Exit(1);
             }
             bool exit = false;
+            Service repositories = new Service(connection);
             while(!exit)
             {
                 Console.WriteLine(@"Enter the entity that you want to generate:
@@ -53,23 +54,18 @@ namespace ConsoleApp
                 switch (input)
                 {
                     case "1":
-                        ActorRepository actorRepository = new ActorRepository(connection);
-                        ProcessActorsGenerator(actorRepository, dataFiles);
+                        ProcessActorsGenerator(repositories.actorRepository, dataFiles);
                         Console.WriteLine("Actors were generated successfully");
                         break;
                     case "2":
-                        FilmRepository filmRepository = new FilmRepository(connection);
-                        ProcessFilmsGenerator(filmRepository, dataFiles);
+                        ProcessFilmsGenerator(repositories.filmRepository, dataFiles);
                         Console.WriteLine("Films were generated successfully");
                         break;
                     case "3":
-                        ReviewRepository reviewRepository = new ReviewRepository(connection);
-                        ProcessReviewsGenerator(reviewRepository, dataFiles);
-                        Console.WriteLine("Reviews were generated successfully");
+                        ProcessReviewsGenerator(repositories, dataFiles);
                         break;
                     case "4":
-                        UserRepository userRepository = new UserRepository(connection);
-                        ProcessUsersGenerator(userRepository, dataFiles);
+                        ProcessUsersGenerator(repositories.userRepository, dataFiles);
                         Console.WriteLine("Users were generated successfully");
                         break;
                     case "5":
@@ -146,14 +142,27 @@ namespace ConsoleApp
                 repository.Insert(film);
             }
         }
-        static void ProcessReviewsGenerator(ReviewRepository repository, DatasetsFilePathes dataFiles)
+        static void ProcessReviewsGenerator(Service repo, DatasetsFilePathes dataFiles)
         {
+            if(repo.userRepository.GetCount() == 0)
+            {
+                Console.WriteLine("Error: there aren`t any users to generate reviews");
+                return;
+            }
+            if(repo.filmRepository.GetCount() == 0)
+            {
+                Console.WriteLine("Error: there aren`t any films to generate reviews");
+                return;
+            }
             int amount = GetAmountOfEntities();
             DateTime createdAtL, createdAtH;
+            DateTime minDateUser = repo.userRepository.GetMinRegDate();
+            DateTime minDateFilm = repo.filmRepository.GetMinRegDate();
+            DateTime minDate = minDateUser>minDateFilm ? minDateUser : minDateFilm;
             while(true)
             {
-                Console.WriteLine("Enter the range of reviews` creation date (only in range from 1910 to 2020)\n1 num:");
-                if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL.Year<1910 || createdAtL.Year>2020)
+                Console.WriteLine($"Enter the range of reviews` creation date (only in range from {minDate.ToString("o")} to 2020)\n1 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL<=minDate || createdAtL.Year>2020)
                 {
                     Console.Error.WriteLine("Error: invalid first date");
                     continue;
@@ -180,8 +189,11 @@ namespace ConsoleApp
                     review.rating = rand.Next(1,6);
                 TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
                 review.createdAt = createdAtL + randDate;
-                repository.Insert(review);
+                review.user_id = repo.userRepository.GetUserForReview(review);
+                review.film_id = repo.filmRepository.GetFilmForReview(review);
+                repo.reviewRepository.Insert(review);
             }
+            Console.WriteLine("Reviews were generated successfully");
         }
         static void ProcessUsersGenerator(UserRepository repository, DatasetsFilePathes dataFiles)
         {
@@ -190,14 +202,14 @@ namespace ConsoleApp
             amount = GetAmountOfEntities();
             while(true)
             {
-                Console.WriteLine("Enter the range of users` registration date (only in range from 1910 to 2021)\n1 num:");
-                if(!DateTime.TryParse(Console.ReadLine(), out regL) || regL.Year<1910 || regL.Year>2021)
+                Console.WriteLine("Enter the range of users` registration date (only in range from 2000 to 2020)\n1 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out regL) || regL.Year<2000 || regL.Year>2020)
                 {
                     Console.Error.WriteLine("Error: invalid first date");
                     continue;
                 }
                 Console.WriteLine("2 num:");
-                if(!DateTime.TryParse(Console.ReadLine(), out regH) || regH<regL || regH.Year>2021)
+                if(!DateTime.TryParse(Console.ReadLine(), out regH) || regH<regL || regH.Year>2020)
                 {
                     Console.Error.WriteLine("Error: invalid second date");
                     continue;
@@ -509,7 +521,7 @@ namespace ConsoleApp
             const int pageSize = 10;
             return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
         }
-        private long GetCount()
+        public long GetCount()
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM films";
@@ -551,6 +563,53 @@ namespace ConsoleApp
             }
             reader.Close();
             return filmsToExport;
+        }
+        public Film[] GetAll()
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM films";
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Film> films = new List<Film>();
+            while(reader.Read())
+            {
+                Film film = GetFilm(reader);
+                
+                films.Add(film);
+            }
+            reader.Close();
+            Film[] array = new Film[films.Count];
+            films.CopyTo(array);
+            return array;
+        }
+        public int GetFilmForReview(Review review)
+        {
+            Film[] films = GetAll();
+            Random rand = new Random();
+            int randId = rand.Next(0,films.Length);
+            for(int i = randId+1; i<=films.Length; i++)
+            {
+                if(i == films.Length)
+                    i = 0;
+                if(films[i].releaseYear <= review.createdAt.Year)
+                    return films[i].id;
+            }
+            return films[0].id;
+        }
+        public DateTime GetMinRegDate()
+        {
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT releaseYear FROM films";
+            SqliteDataReader reader = command.ExecuteReader();
+            DateTime min = DateTime.Now;
+            while(reader.Read())
+            {
+                int year = int.Parse(reader.GetString(0));
+                DateTime current = new DateTime(year,1,1);
+                if(current < min)
+                    min = current;
+            }
+            reader.Close();
+            return min;
         }
     }
     class ReviewRepository
@@ -596,12 +655,14 @@ namespace ConsoleApp
         public int Insert(Review review)
         {
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText =@"INSERT INTO reviews (content, rating, createdAt)
-            VALUES ($content, $rating, $createdAt);
+            command.CommandText =@"INSERT INTO reviews (content, rating, createdAt, user_id, film_id)
+            VALUES ($content, $rating, $createdAt, $user_id, $film_id);
             SELECT last_insert_rowid();";
             command.Parameters.AddWithValue("$content", review.content);
             command.Parameters.AddWithValue("$rating",review.rating);
             command.Parameters.AddWithValue("$createdAt", review.createdAt.ToString("o"));
+            command.Parameters.AddWithValue("$user_id",review.user_id);
+            command.Parameters.AddWithValue("$film_id",review.film_id);
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
@@ -751,7 +812,7 @@ namespace ConsoleApp
             const int pageSize = 10;
             return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
         }
-        private long GetCount()
+        public long GetCount()
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM users";
@@ -793,6 +854,52 @@ namespace ConsoleApp
             }
             reader.Close();
             return usersToExport;
+        }
+        public User[] GetAll()
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM users";
+            SqliteDataReader reader = command.ExecuteReader();
+            List<User> users = new List<User>();
+            while(reader.Read())
+            {
+                User user = GetUser(reader);
+                
+                users.Add(user);
+            }
+            reader.Close();
+            User[] array = new User[users.Count];
+            users.CopyTo(array);
+            return array;
+        }
+        public int GetUserForReview(Review review)
+        {
+            User[] users = GetAll();
+            Random rand = new Random();
+            int randId = rand.Next(0,users.Length);
+            for(int i = randId; i<=users.Length; i++)
+            {
+                if(i == users.Length)
+                    i = 0;
+                if(users[i].registrationDate < review.createdAt)
+                    return users[i].id;
+            }
+            return users[0].id;
+        }
+        public DateTime GetMinRegDate()
+        {
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT registrationDate FROM users";
+            SqliteDataReader reader = command.ExecuteReader();
+            DateTime min = DateTime.Now;
+            while(reader.Read())
+            {
+                DateTime current = DateTime.Parse(reader.GetString(0));
+                if(current < min)
+                    min = current;
+            }
+            reader.Close();
+            return min;
         }
     }
     class RoleRepository
@@ -900,5 +1007,19 @@ namespace ConsoleApp
             return film;
         }
 
+    }
+    class Service
+    {
+        public ActorRepository actorRepository;
+        public FilmRepository filmRepository;
+        public ReviewRepository reviewRepository;
+        public UserRepository userRepository;
+        public Service(SqliteConnection connection)
+        {
+            this.actorRepository = new ActorRepository(connection);
+            this.filmRepository = new FilmRepository(connection);
+            this.reviewRepository = new ReviewRepository(connection);
+            this.userRepository = new UserRepository(connection);
+        }
     }
 }
