@@ -8,6 +8,16 @@ namespace ConsoleApp
 {
     class Program
     {
+        class CurrentInsertedEntities
+        {
+            public List<int> actorIds;
+            public List<int> filmIds;
+            public CurrentInsertedEntities()
+            {
+                this.actorIds = new List<int>();
+                this.filmIds = new List<int>();
+            }
+        }
         struct DatasetsFilePathes
         {
             public string fullnames;
@@ -40,8 +50,11 @@ namespace ConsoleApp
                 Console.WriteLine("Connection isn`t opened");
                 Environment.Exit(1);
             }
-            bool exit = false;
+
             Service repositories = new Service(connection);
+            CurrentInsertedEntities currInsEnt = new CurrentInsertedEntities();
+
+            bool exit = false;
             while(!exit)
             {
                 Console.WriteLine(@"Enter the entity that you want to generate:
@@ -54,11 +67,11 @@ namespace ConsoleApp
                 switch (input)
                 {
                     case "1":
-                        ProcessActorsGenerator(repositories.actorRepository, dataFiles);
+                        ProcessActorsGenerator(repositories.actorRepository, dataFiles, currInsEnt);
                         Console.WriteLine("Actors were generated successfully");
                         break;
                     case "2":
-                        ProcessFilmsGenerator(repositories.filmRepository, dataFiles);
+                        ProcessFilmsGenerator(repositories.filmRepository, dataFiles, currInsEnt);
                         Console.WriteLine("Films were generated successfully");
                         break;
                     case "3":
@@ -69,16 +82,46 @@ namespace ConsoleApp
                         Console.WriteLine("Users were generated successfully");
                         break;
                     case "5":
-                        exit = true;
+                        if(repositories.actorRepository.GetCount()==0 && repositories.filmRepository.GetCount()!=0)
+                            Console.WriteLine("Error: Films can`t be without actors: please, generate them too");
+                        else if((repositories.actorRepository.GetCount()!=0 && repositories.filmRepository.GetCount()==0))
+                            Console.WriteLine("Error: There aren`t any films for actors: please, generate them too");
+                        else
+                            exit = true;
                         break;
                     default:
                         Console.Error.WriteLine("Error: invalid input");
                         break;
                 }
             }
+            int[] filmIds = new int[1];  
+            int[] actorIds = new int[1];
+            bool actorLinks = false;
+            bool filmLinks = false;
+            if(currInsEnt.actorIds.Count!=0)
+            {
+                actorLinks = true;
+                actorIds = new int[currInsEnt.actorIds.Count];
+                currInsEnt.actorIds.CopyTo(actorIds);
+            }
+            else
+                actorIds = repositories.actorRepository.GetAllIds();
+            if(currInsEnt.filmIds.Count!=0)
+            {
+                filmLinks=true;
+                filmIds = new int[currInsEnt.filmIds.Count];
+                currInsEnt.filmIds.CopyTo(filmIds);
+            }
+            else
+                filmIds = repositories.filmRepository.GetAllIds();
+            if(actorLinks || filmLinks)
+                Console.WriteLine("Linking films and actors..");
+            ProcessLinking(repositories, actorIds, filmIds, actorLinks, filmLinks);
+            if(actorLinks || filmLinks)
+                Console.WriteLine("Successfull");
             connection.Close();
         }
-        static void ProcessActorsGenerator(ActorRepository repository,DatasetsFilePathes dataFiles)
+        static void ProcessActorsGenerator(ActorRepository repository,DatasetsFilePathes dataFiles, CurrentInsertedEntities currInsEnt)
         {
             int amount, ageL, ageH;
             amount = GetAmountOfEntities();
@@ -107,10 +150,11 @@ namespace ConsoleApp
                 actor.fullname = fullnames[rand.Next(0,fullnames.Length)];
                 actor.country = countries[rand.Next(0,countries.Length)];
                 actor.age = rand.Next(ageL,ageH+1);
-                repository.Insert(actor);
+                int id = repository.Insert(actor);
+                currInsEnt.actorIds.Add(id);
             }
         }
-        static void ProcessFilmsGenerator(FilmRepository repository, DatasetsFilePathes dataFiles)
+        static void ProcessFilmsGenerator(FilmRepository repository, DatasetsFilePathes dataFiles, CurrentInsertedEntities currInsEnt)
         {
             int amount, releaseYearsL, releaseYearsH;
             amount = GetAmountOfEntities();
@@ -139,7 +183,8 @@ namespace ConsoleApp
                 film.title = titles[rand.Next(0,titles.Length)];
                 film.genre = genres[rand.Next(0,genres.Length)];
                 film.releaseYear = rand.Next(releaseYearsL,releaseYearsH+1);
-                repository.Insert(film);
+                int id = repository.Insert(film);
+                currInsEnt.filmIds.Add(id);
             }
         }
         static void ProcessReviewsGenerator(Service repo, DatasetsFilePathes dataFiles)
@@ -255,6 +300,52 @@ namespace ConsoleApp
                     continue;
                 }
                 return amount;
+            }
+        }
+        static void ProcessLinking(Service repo, int[] actors, int[] films, bool actorLinks, bool filmLinks)
+        {
+            Random rand = new Random();
+            if(actorLinks)
+            {
+                for(int i =0; i< actors.Length; i++)
+                {
+                    int amount = rand.Next(2,11);
+                    if(amount>films.Length)
+                        amount=films.Length;
+                    for(int j = 0;j< amount; j++)
+                    {
+                        int randFilm = rand.Next(0,films.Length);
+                        if(repo.roleRepository.IfExists(films[randFilm],actors[i]))
+                        {
+                            if(amount == films.Length)
+                                break;
+                            j--;
+                            continue;
+                        }
+                        repo.roleRepository.Insert(new Role{actor_id = actors[i], film_id = films[randFilm]});       
+                    }
+                }
+            }
+            if(filmLinks)
+            {
+                for(int i = 0; i<films.Length; i++)
+                {
+                    int amount = rand.Next(4,13);
+                    if(amount>actors.Length)
+                        amount = actors.Length;
+                    for(int j = 0; j<amount; j++)
+                    {
+                        int randActor = rand.Next(0, actors.Length);
+                        if(repo.roleRepository.IfExists(films[i],actors[randActor]))
+                        {
+                            if(amount == actors.Length)
+                                break;
+                            j--;
+                            continue;
+                        }
+                        repo.roleRepository.Insert(new Role{actor_id = actors[randActor],film_id=films[i]});
+                    }
+                }
             }
         }
 
@@ -412,7 +503,7 @@ namespace ConsoleApp
             const int pageSize = 10;
             return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
         }
-        private long GetCount()
+        public long GetCount()
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM actors";
@@ -462,6 +553,21 @@ namespace ConsoleApp
             command.Parameters.AddWithValue("$valueX", actor.country);
             int nChanged = command.ExecuteNonQuery();
             return nChanged == 1;
+        }
+        public int[] GetAllIds()
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT id FROM actors";
+            SqliteDataReader reader = command.ExecuteReader();
+            List<int> ids = new List<int>();
+            while(reader.Read())
+            {   
+                ids.Add(int.Parse(reader.GetString(0)));
+            }
+            reader.Close();
+            int[] array = new int[ids.Count];
+            ids.CopyTo(array);
+            return array;
         }
     }
     class FilmRepository
@@ -610,6 +716,21 @@ namespace ConsoleApp
             }
             reader.Close();
             return min;
+        }
+        public int[] GetAllIds()
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT id FROM films";
+            SqliteDataReader reader = command.ExecuteReader();
+            List<int> ids = new List<int>();
+            while(reader.Read())
+            {   
+                ids.Add(int.Parse(reader.GetString(0)));
+            }
+            reader.Close();
+            int[] array = new int[ids.Count];
+            ids.CopyTo(array);
+            return array;
         }
     }
     class ReviewRepository
@@ -1006,7 +1127,21 @@ namespace ConsoleApp
             film.releaseYear = int.Parse(reader.GetString(3));
             return film;
         }
-
+        public bool IfExists(int filmId, int actorId)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText=@"SELECT * FROM roles WHERE film_id = $film_id AND actor_id = $actor_id";
+            command.Parameters.AddWithValue("$film_id",filmId);
+            command.Parameters.AddWithValue("$actor_id",actorId);
+            SqliteDataReader reader = command.ExecuteReader();
+            bool unique = false;
+            if(reader.Read())
+                unique = true;
+            else
+                unique = false;
+            reader.Close();
+            return unique;
+        }
     }
     class Service
     {
@@ -1014,12 +1149,14 @@ namespace ConsoleApp
         public FilmRepository filmRepository;
         public ReviewRepository reviewRepository;
         public UserRepository userRepository;
+         public RoleRepository roleRepository;
         public Service(SqliteConnection connection)
         {
             this.actorRepository = new ActorRepository(connection);
             this.filmRepository = new FilmRepository(connection);
             this.reviewRepository = new ReviewRepository(connection);
             this.userRepository = new UserRepository(connection);
+            this.roleRepository = new RoleRepository(connection);
         }
     }
 }
