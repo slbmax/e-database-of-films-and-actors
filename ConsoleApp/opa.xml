@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfReview xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"> 
+ <review>
+    <id>103</id>
+    <content>Indeed, the monsters encounter many fights; nonetheless, the underwater sea battles and the neon lite streets of Hong Kong's skyscraper scenes rank as standouts.
+</content>
+    <rating>5</rating>
+    <createdAt>2006-03-17T00:19:41.784377</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>120</id>
+    <content>A mindless, fun, crazy thrill ride of epic proportions.
+</content>
+    <rating>8</rating>
+    <createdAt>2006-11-18T15:10:57.5861991</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>127</id>
+    <content>2 hours of totally boredom
+</content>
+    <rating>1</rating>
+    <createdAt>2006-07-08T21:21:44.1364744</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>140</id>
+    <content>Director Clark Johnson has a cast that's up for the challenge, but other aspects are wobbly.
+</content>
+    <rating>3</rating>
+    <createdAt>2006-01-22T17:24:31.1295404</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>146</id>
+    <content>Director Clark Johnson has a cast that's up for the challenge, but other aspects are wobbly.
+</content>
+    <rating>3</rating>
+    <createdAt>2006-03-03T08:43:55.498507</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>165</id>
+    <content>The sort of belated sequel that barely pretends to be more than an exercise in nostalgia.
+</content>
+    <rating>2</rating>
+    <createdAt>2006-12-08T01:40:21.687035</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>169</id>
+    <content>Just a soap opera for girls
+</content>
+    <rating>4</rating>
+    <createdAt>2006-08-18T19:53:35.1457673</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>179</id>
+    <content>The performance of every actor and actress (in the film) are excellently NATURAL
+</content>
+    <rating>6</rating>
+    <createdAt>2006-09-04T19:31:47.9477071</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>183</id>
+    <content>I've just watched it, and I'm stunned to see the 8/10 average rating for the show. It`s TERRIBLE.
+</content>
+    <rating>2</rating>
+    <createdAt>2006-08-13T15:48:29.4071787</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+  <review>
+    <id>194</id>
+    <content>It's terrific when a funny movie doesn't make smile you.
+</content>
+    <rating>4</rating>
+    <createdAt>2006-09-28T17:40:39.3995655</createdAt>
+    <user_id>101</user_id>
+    <film_id>1</film_id>
+  </review>
+</ArrayOfReview>

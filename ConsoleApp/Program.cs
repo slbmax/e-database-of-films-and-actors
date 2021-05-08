@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using System.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml.Serialization;
 
 namespace ConsoleApp
 {
@@ -30,6 +31,13 @@ namespace ConsoleApp
         }
         static void Main(string[] args)
         {
+
+            GUI.RunInterface();
+            Environment.Exit(0);
+
+
+
+
             DatasetsFilePathes dataFiles = new DatasetsFilePathes()
             {
                 fullnames = @"C:\Users\Макс\myprojects\progbase3\data\generator\names.txt",
@@ -53,6 +61,22 @@ namespace ConsoleApp
 
             Service repositories = new Service(connection);
             CurrentInsertedEntities currInsEnt = new CurrentInsertedEntities();
+
+
+
+            /* List<Review> reviews = repositories.reviewRepository.GetAllFilmReviews(1);
+            XML xml = new XML();
+            xml.Export("./opa.xml", reviews);
+            connection.Close();
+            Environment.Exit(0); */
+            
+            List<Review> reviews =XML.Import("a");
+            foreach(Review re in reviews)
+                repositories.reviewRepository.Insert(re);
+            connection.Close();
+            Environment.Exit(0); 
+            
+
 
             bool exit = false;
             while(!exit)
@@ -141,8 +165,8 @@ namespace ConsoleApp
                 }
                 break;
             }
-            string[] fullnames = File.ReadAllText(dataFiles.fullnames).Split("\n");
-            string[] countries = File.ReadAllText(dataFiles.countries).Split("\n");
+            string[] fullnames = File.ReadAllText(dataFiles.fullnames).Split("\r\n");
+            string[] countries = File.ReadAllText(dataFiles.countries).Split("\r\n");
             Random rand = new Random();
             for(int i = 0; i < amount; i++)
             {
@@ -174,8 +198,8 @@ namespace ConsoleApp
                 }
                 break;
             }
-            string[] titles = File.ReadAllText(dataFiles.titles).Split("\n");
-            string[] genres = File.ReadAllText(dataFiles.genres).Split("\n");
+            string[] titles = File.ReadAllText(dataFiles.titles).Split("\r\n");
+            string[] genres = File.ReadAllText(dataFiles.genres).Split("\r\n");
             Random rand = new Random();
             for(int i = 0; i < amount; i++)
             {
@@ -220,7 +244,7 @@ namespace ConsoleApp
                 }
                 break;
             }
-            string[] reviews = File.ReadAllText(dataFiles.reviews).Split("\n");
+            string[] reviews = File.ReadAllText(dataFiles.reviews).Split("\r\n");
             Random rand = new Random();
             TimeSpan range = createdAtH - createdAtL;
             for(int i = 0; i<amount; i++)
@@ -261,9 +285,9 @@ namespace ConsoleApp
                 }
                 break;
             }
-            string[] usernames = File.ReadAllText(dataFiles.usernames).Split("\n");
-            string[] passwords = File.ReadAllText(dataFiles.passwords).Split("\n");
-            string[] fullnames = File.ReadAllText(dataFiles.fullnames).Split("\n");
+            string[] usernames = File.ReadAllText(dataFiles.usernames).Split("\r\n");
+            string[] passwords = File.ReadAllText(dataFiles.passwords).Split("\r\n");
+            string[] fullnames = File.ReadAllText(dataFiles.fullnames).Split("\r\n");
             int[] roles = new int[]{0,0,0,0,1,0,0,0,0};
             Random rand = new Random();
             TimeSpan range = regH - regL;
@@ -317,8 +341,6 @@ namespace ConsoleApp
                         int randFilm = rand.Next(0,films.Length);
                         if(repo.roleRepository.IfExists(films[randFilm],actors[i]))
                         {
-                            if(amount == films.Length)
-                                break;
                             j--;
                             continue;
                         }
@@ -338,7 +360,7 @@ namespace ConsoleApp
                         int randActor = rand.Next(0, actors.Length);
                         if(repo.roleRepository.IfExists(films[i],actors[randActor]))
                         {
-                            if(amount == actors.Length)
+                            if(amount == actors.Length && actorLinks)
                                 break;
                             j--;
                             continue;
@@ -361,7 +383,7 @@ namespace ConsoleApp
         public Review[] reviews;
         
     }
-    class Actor
+    public class Actor
     {
         public int id;
         public string fullname;
@@ -386,7 +408,7 @@ namespace ConsoleApp
             return $"[{id}] {fullname} : {country}; [{age}]";
         }
     }
-    class Film
+    public class Film
     {
         public int id;
         public string title;
@@ -412,7 +434,8 @@ namespace ConsoleApp
             return $"[{id}] {title} : {genre}; [{releaseYear}]";
         }
     }
-    class Review
+    [XmlType(TypeName="review")]
+    public class Review
     {
         public int id;
         public string content;
@@ -853,7 +876,7 @@ namespace ConsoleApp
             userReviews.CopyTo(allUserReviews);
             return allUserReviews;
         }
-        public Review[] GetAllFilmReviews(int id)
+        public List<Review> GetAllFilmReviews(int id)
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM reviews WHERE film_id = $id";
@@ -863,13 +886,14 @@ namespace ConsoleApp
             while(reader.Read())
             {
                 Review review = GetReview(reader);
+                review.film_id = int.Parse(reader.GetString(5)); 
+                review.user_id = int.Parse(reader.GetString(4));
                 
                 filmReviews.Add(review);
             }
             reader.Close();
-            Review[] allUserReviews = new Review[filmReviews.Count];
-            filmReviews.CopyTo(allUserReviews);
-            return allUserReviews;
+            
+            return filmReviews;
         }
     }
     class UserRepository
