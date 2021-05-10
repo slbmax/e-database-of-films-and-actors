@@ -64,6 +64,7 @@ namespace ConsoleApp
                 error = "Film year value is in invalid range";
             if(error == "noerrors")
             {
+                MessageBox.Query("Create film", "Successfully", "OK");
                 this.canceled = false;
                 Application.RequestStop();
             }

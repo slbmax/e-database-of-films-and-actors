@@ -32,8 +32,6 @@ namespace ConsoleApp
         static void Main(string[] args)
         {
 
-            GUI.RunInterface();
-            Environment.Exit(0);
 
 
 
@@ -60,6 +58,10 @@ namespace ConsoleApp
             }
 
             Service repositories = new Service(connection);
+
+            GUI.RunInterface(repositories);
+            Environment.Exit(0);
+
             CurrentInsertedEntities currInsEnt = new CurrentInsertedEntities();
 
 
@@ -372,7 +374,7 @@ namespace ConsoleApp
         }
 
     }
-    class User
+    public class User
     {
         public int id;
         public string username;
@@ -457,7 +459,7 @@ namespace ConsoleApp
             this.createdAt = createdAt;
         }
     }
-    class Role
+    public class Role
     {
         public int id;
         public int actor_id;
@@ -469,7 +471,7 @@ namespace ConsoleApp
             this.film_id =0;
         }
     }
-    class ActorRepository
+    public class ActorRepository
     {
         private SqliteConnection connection;
         public ActorRepository(SqliteConnection connection)
@@ -484,6 +486,21 @@ namespace ConsoleApp
             actor.country = reader.GetString(2);
             actor.age = int.Parse(reader.GetString(3));
             return actor;
+        }
+        public List<Actor> GetAll()
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM actors";
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Actor> actors = new List<Actor>();
+            while(reader.Read())
+            {
+                Actor actor = GetActor(reader);
+                
+                actors.Add(actor);
+            }
+            reader.Close();
+            return actors;
         }
         public Actor GetById(int id)
         {
@@ -572,8 +589,11 @@ namespace ConsoleApp
         public bool Update(Actor actor)
         {
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"UPDATE actors SET /// WHERE id = $id";
-            command.Parameters.AddWithValue("$valueX", actor.country);
+            command.CommandText = @"UPDATE actors SET fullname = $fullname, country = $country, age = $age WHERE id = $id";
+            command.Parameters.AddWithValue("$id", actor.id);
+            command.Parameters.AddWithValue("$fullname", actor.fullname);
+            command.Parameters.AddWithValue("$country", actor.country);
+            command.Parameters.AddWithValue("$age", actor.age);
             int nChanged = command.ExecuteNonQuery();
             return nChanged == 1;
         }
@@ -593,7 +613,7 @@ namespace ConsoleApp
             return array;
         }
     }
-    class FilmRepository
+    public class FilmRepository
     {
         private SqliteConnection connection;
         public FilmRepository(SqliteConnection connection)
@@ -693,7 +713,7 @@ namespace ConsoleApp
             reader.Close();
             return filmsToExport;
         }
-        public Film[] GetAll()
+        public List<Film> GetAll()
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM films";
@@ -706,13 +726,13 @@ namespace ConsoleApp
                 films.Add(film);
             }
             reader.Close();
-            Film[] array = new Film[films.Count];
-            films.CopyTo(array);
-            return array;
+            return films;
         }
         public int GetFilmForReview(Review review)
         {
-            Film[] films = GetAll();
+            List<Film> filmsList = GetAll();
+            Film[] films = new Film[filmsList.Count];
+            filmsList.CopyTo(films);
             Random rand = new Random();
             int randId = rand.Next(0,films.Length);
             for(int i = randId+1; i<=films.Length; i++)
@@ -756,7 +776,7 @@ namespace ConsoleApp
             return array;
         }
     }
-    class ReviewRepository
+    public class ReviewRepository
     {
         private SqliteConnection connection;
         public ReviewRepository(SqliteConnection connection)
@@ -896,7 +916,7 @@ namespace ConsoleApp
             return filmReviews;
         }
     }
-    class UserRepository
+    public class UserRepository
     {
         private SqliteConnection connection;
         public UserRepository(SqliteConnection connection)
@@ -1047,7 +1067,7 @@ namespace ConsoleApp
             return min;
         }
     }
-    class RoleRepository
+    public class RoleRepository
     {
         private SqliteConnection connection;
         public RoleRepository(SqliteConnection connection)
@@ -1167,13 +1187,13 @@ namespace ConsoleApp
             return unique;
         }
     }
-    class Service
+    public class Service
     {
         public ActorRepository actorRepository;
         public FilmRepository filmRepository;
         public ReviewRepository reviewRepository;
         public UserRepository userRepository;
-         public RoleRepository roleRepository;
+        public RoleRepository roleRepository;
         public Service(SqliteConnection connection)
         {
             this.actorRepository = new ActorRepository(connection);

@@ -1,19 +1,26 @@
 using Terminal.Gui;
+using System.Collections.Generic;
 namespace ConsoleApp
 {
     public static class GUI
     {
-        public static void RunInterface()
+        private static FrameView frameListEnt;
+        private static ListView allListView;
+        private static Service repo;
+        public static void RunInterface(Service repositories)
         {
+            repo = repositories;
             Application.Init();
             Toplevel top = Application.Top;
             MenuBar menu = new MenuBar(new MenuBarItem[] {
-                new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("_Export","export reviews",null),
-                    new MenuItem ("_Import","import reviews",null),
+                new MenuBarItem ("File", new MenuItem [] {
+                    new MenuItem ("Export","export reviews",null),
+                    new MenuItem ("Import","import reviews",null),
                     new MenuItem ("Exit","",OnQuit)
                 }),
-                new MenuBarItem ("_Help","",null)
+                new MenuBarItem ("Help",new MenuItem [] {
+                    new MenuItem ("Help","",OnQuit)
+                })
             });
             Window win = new Window("e-database of films and actors")
             {
@@ -34,13 +41,8 @@ namespace ConsoleApp
             Button viewEntity = new Button(mainButtonsX, 5, "Select entity");
             viewEntity.Clicked += OnViewEntityButtonClicked;
 
-            Button deleteEntity = new Button(mainButtonsX, 7, "Delete entity");
-            deleteEntity.Clicked += OnDeleteEntityButtonClicked;
-
-            Button editEntity = new Button(mainButtonsX, 9, "Edit entity");
-            editEntity.Clicked += OnEditEntityButtonClicked;
             
-            win.Add(createEntBut, viewPageBut, viewEntity, deleteEntity, editEntity);
+            win.Add(createEntBut, viewPageBut, viewEntity);
             Application.Run();
 
         }
@@ -52,15 +54,15 @@ namespace ConsoleApp
         {
             Window window = new Window("")
             {
-                X = 30,
-                Y = 2,
-                Width = 30,
-                Height = 12
+                X = 2,
+                Y = 14,
+                Width = 27,
+                Height = 14
             };
-            Label label = new Label(1, 0, "Select entity to create:");
+            Label label = new Label(0, 0, "Select entity to create:");
             Button cancelBut = new Button("Cancel");
             cancelBut.X = 1;
-            cancelBut.Y = Pos.Bottom(window)-5;
+            cancelBut.Y = 10;
             cancelBut.Clicked += OnQuit;
 
             Button filmBut = new Button(1,2,"Film");
@@ -79,17 +81,36 @@ namespace ConsoleApp
         }
         static void OnPageButtonClicked()
         {
+            Window window = new Window("")
+            {
+                X = 2,
+                Y = 14,
+                Width = 27,
+                Height = 14
+            };
+            Label label = new Label(0, 0, "Select entity to view:");
+            Button cancelBut = new Button("Cancel");
+            cancelBut.X = 1;
+            cancelBut.Y = 10;
+            cancelBut.Clicked += OnQuit;
 
+            window.Add(label, cancelBut);
+
+            Button filmBut = new Button(1,2,"Film");
+            filmBut.Clicked += OnPageFilmButton;
+
+            Button actorBut = new Button(1,4,"Actor");
+            actorBut.Clicked += OnPageActorButton;
+
+            Button reviewBut = new Button(1,6,"Review");
+            reviewBut.Clicked += OnPageReviewButton;
+            
+
+            window.Add(label, cancelBut, filmBut, actorBut, reviewBut);
+
+            Application.Run(window);
         }
         static void OnViewEntityButtonClicked()
-        {
-
-        }
-        static void OnDeleteEntityButtonClicked()
-        {
-
-        }
-        static void OnEditEntityButtonClicked()
         {
 
         }
@@ -109,9 +130,30 @@ namespace ConsoleApp
             if(!dialog.canceled)
             {
                 Actor actor = dialog.GetActor();
+                repo.actorRepository.Insert(actor);
             }
         }
         static void OnCreateReviewButton()
+        {
+            CreateReviewDialog dialog = new CreateReviewDialog();
+            Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                Review review = dialog.GetReview();
+            }
+        }
+        static void OnPageFilmButton()
+        {
+
+        }
+        static void OnPageActorButton()
+        {
+            ShowActorsWind wind = new ShowActorsWind();
+            wind.SetRepository(repo.actorRepository);
+            
+            Application.Run(wind);
+        }
+        static void OnPageReviewButton()
         {
 
         }
