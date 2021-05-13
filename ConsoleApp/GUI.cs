@@ -1,5 +1,6 @@
 using Terminal.Gui;
 using System.Collections.Generic;
+using System.IO;
 namespace ConsoleApp
 {
     public static class GUI
@@ -144,7 +145,10 @@ namespace ConsoleApp
         }
         static void OnPageFilmButton()
         {
-
+            ShowFilmsWind wind = new ShowFilmsWind();
+            wind.SetRepository(repo.filmRepository);
+            
+            Application.Run(wind);
         }
         static void OnPageActorButton()
         {
@@ -155,7 +159,9 @@ namespace ConsoleApp
         }
         static void OnPageReviewButton()
         {
-
+            ShowReviewsWind wind = new ShowReviewsWind();
+            wind.SetRepository(repo.reviewRepository);
+            Application.Run(wind);
         }
 
     }

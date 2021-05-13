@@ -60,7 +60,6 @@ namespace ConsoleApp
                 error = "Actor age value is in invalid range";
             if(error == "noerrors")
             {
-                MessageBox.Query("Create actor", "Successfully", "OK");
                 this.canceled = false;
                 Application.RequestStop();
             }

@@ -59,8 +59,6 @@ namespace ConsoleApp
 
             Service repositories = new Service(connection);
 
-            GUI.RunInterface(repositories);
-            Environment.Exit(0);
 
             CurrentInsertedEntities currInsEnt = new CurrentInsertedEntities();
 
@@ -72,11 +70,11 @@ namespace ConsoleApp
             connection.Close();
             Environment.Exit(0); */
             
-            List<Review> reviews =XML.Import("a");
+            /* List<Review> reviews =XML.Import("a");
             foreach(Review re in reviews)
                 repositories.reviewRepository.Insert(re);
             connection.Close();
-            Environment.Exit(0); 
+            Environment.Exit(0);  */
             
 
 
@@ -145,6 +143,10 @@ namespace ConsoleApp
             ProcessLinking(repositories, actorIds, filmIds, actorLinks, filmLinks);
             if(actorLinks || filmLinks)
                 Console.WriteLine("Successfull");
+///
+            GUI.RunInterface(repositories);
+            Environment.Exit(0);
+///
             connection.Close();
         }
         static void ProcessActorsGenerator(ActorRepository repository,DatasetsFilePathes dataFiles, CurrentInsertedEntities currInsEnt)
@@ -407,7 +409,7 @@ namespace ConsoleApp
         }
         public override string ToString()
         {
-            return $"[{id}] {fullname} : {country}; [{age}]";
+            return $"[{id}] {fullname}, {age} -- {country}";
         }
     }
     public class Film
@@ -433,7 +435,7 @@ namespace ConsoleApp
         }
         public override string ToString()
         {
-            return $"[{id}] {title} : {genre}; [{releaseYear}]";
+            return $"[{id}] {title} [{releaseYear}] -- {genre}";
         }
     }
     [XmlType(TypeName="review")]
@@ -457,6 +459,10 @@ namespace ConsoleApp
             this.content = content;
             this.rating = rating;
             this.createdAt = createdAt;
+        }
+        public override string ToString()
+        {
+            return $"[{id}] {content} [{rating}] -- {createdAt}";
         }
     }
     public class Role
@@ -628,6 +634,17 @@ namespace ConsoleApp
             film.genre = reader.GetString(2);
             film.releaseYear = int.Parse(reader.GetString(3));
             return film;
+        }
+        public bool Update(Film film)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"UPDATE films SET title = $title, genre = $genre, releaseYear = $ry WHERE id = $id";
+            command.Parameters.AddWithValue("$id", film.id);
+            command.Parameters.AddWithValue("$title", film.title);
+            command.Parameters.AddWithValue("$genre", film.genre);
+            command.Parameters.AddWithValue("$ry", film.releaseYear);
+            int nChanged = command.ExecuteNonQuery();
+            return nChanged == 1;
         }
         public Film GetById(int id)
         {
@@ -807,6 +824,17 @@ namespace ConsoleApp
             reader.Close();
             return review;
         }
+        public bool Update(Review review)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"UPDATE reviews SET content = $content, rating = $r, createdAt = $cr WHERE id = $id";
+            command.Parameters.AddWithValue("$id", review.id);
+            command.Parameters.AddWithValue("$content", review.content);
+            command.Parameters.AddWithValue("$r", review.rating);
+            command.Parameters.AddWithValue("$cr", review.createdAt.ToString("o"));
+            int nChanged = command.ExecuteNonQuery();
+            return nChanged == 1;
+        }
         public int DeleteById(int id)
         {
             SqliteCommand command = this.connection.CreateCommand();
@@ -854,7 +882,7 @@ namespace ConsoleApp
             List<Review> reviews = new List<Review>();
             while(reader.Read())
             {
-                Review review = new Review();
+                Review review = GetReview(reader);
                 
                 reviews.Add(review);
             }

@@ -1,29 +1,30 @@
 using Terminal.Gui;
 using System.Collections.Generic;
+using System.IO;
 namespace ConsoleApp
 {
-    public class ShowActorsWind : Window
+    public class ShowReviewsWind : Window
     {
         public bool canceled;
-        private ListView allActorsListView;
+        private ListView allReviewsListView;
         private int pageSize = 10;
         private int page = 1;
-        private ActorRepository repository;
+        private ReviewRepository repository;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
         private Button prevPageButton;
-        public ShowActorsWind()
+        public ShowReviewsWind()
         {
-            this.Title = "List of actors"; X = 30; Y = 3; Width = 87; Height = 25;
+            this.Title = "List of reviews"; X = 30; Y = 3; Width = 87; Height = 25;
             Button cancelBut = new Button("Cancel"){X = Pos.Percent(85),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnQuit;
-            allActorsListView = new ListView(new List<Actor>())
+            allReviewsListView = new ListView(new List<Review>())
             {
                 X = 1, Y = 0, Width = Dim.Fill(), Height = pageSize
             };
-            allActorsListView.OpenSelectedItem += OnOpenActor;
-            this.Add(cancelBut, allActorsListView);
+            allReviewsListView.OpenSelectedItem += OnOpenReview;
+            this.Add(cancelBut, allReviewsListView);
             Label page = new Label("Page: ")
             {
                 X = 1, Y = pageSize+2
@@ -40,7 +41,7 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepository(ActorRepository repository)
+        public void SetRepository(ReviewRepository repository)
         {
             this.repository = repository;
             ShowCurrPage();
@@ -50,7 +51,7 @@ namespace ConsoleApp
             this.pagesLabelCur.Text = page.ToString();
             int total = repository.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allActorsListView.SetSource(repository.GetPage(page));
+            this.allReviewsListView.SetSource(repository.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -77,24 +78,24 @@ namespace ConsoleApp
             this.page -=1;
             ShowCurrPage();
         }
-        private void OnOpenActor(ListViewItemEventArgs args)
+        private void OnOpenReview(ListViewItemEventArgs args)
         {
-            Actor actor = (Actor)args.Value;
-            OpenActorDialog dialog = new OpenActorDialog();
-            dialog.SetActor(actor);
+            Review review = (Review)args.Value;
+            OpenReviewDialog dialog = new OpenReviewDialog();
+            dialog.SetReview(review);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
-                repository.DeleteById(actor.id);
+                repository.DeleteById(review.id);
                 ShowCurrPage();
             }
             if(dialog.edited)
             {
-                Actor newAc = dialog.GetActor();
-                newAc.id = actor.id;
-                repository.Update(newAc);
+                Review newReview = dialog.GetReview();
+                newReview.id = review.id;
+                repository.Update(newReview);
                 ShowCurrPage();
             }
         }

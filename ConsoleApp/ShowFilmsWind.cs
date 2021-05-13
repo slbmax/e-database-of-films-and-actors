@@ -2,28 +2,28 @@ using Terminal.Gui;
 using System.Collections.Generic;
 namespace ConsoleApp
 {
-    public class ShowActorsWind : Window
+    public class ShowFilmsWind : Window
     {
         public bool canceled;
-        private ListView allActorsListView;
+        private ListView allFilmsListView;
         private int pageSize = 10;
         private int page = 1;
-        private ActorRepository repository;
+        private FilmRepository repository;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
         private Button prevPageButton;
-        public ShowActorsWind()
+        public ShowFilmsWind()
         {
-            this.Title = "List of actors"; X = 30; Y = 3; Width = 87; Height = 25;
+            this.Title = "List of films"; X = 30; Y = 3; Width = 87; Height = 25;
             Button cancelBut = new Button("Cancel"){X = Pos.Percent(85),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnQuit;
-            allActorsListView = new ListView(new List<Actor>())
+            allFilmsListView = new ListView(new List<Film>())
             {
                 X = 1, Y = 0, Width = Dim.Fill(), Height = pageSize
             };
-            allActorsListView.OpenSelectedItem += OnOpenActor;
-            this.Add(cancelBut, allActorsListView);
+            allFilmsListView.OpenSelectedItem += OnOpenActor;
+            this.Add(cancelBut, allFilmsListView);
             Label page = new Label("Page: ")
             {
                 X = 1, Y = pageSize+2
@@ -40,7 +40,7 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepository(ActorRepository repository)
+        public void SetRepository(FilmRepository repository)
         {
             this.repository = repository;
             ShowCurrPage();
@@ -50,7 +50,7 @@ namespace ConsoleApp
             this.pagesLabelCur.Text = page.ToString();
             int total = repository.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allActorsListView.SetSource(repository.GetPage(page));
+            this.allFilmsListView.SetSource(repository.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -79,22 +79,22 @@ namespace ConsoleApp
         }
         private void OnOpenActor(ListViewItemEventArgs args)
         {
-            Actor actor = (Actor)args.Value;
-            OpenActorDialog dialog = new OpenActorDialog();
-            dialog.SetActor(actor);
+            Film film = (Film)args.Value;
+            OpenFilmDialog dialog = new OpenFilmDialog();
+            dialog.SetFilm(film);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
-                repository.DeleteById(actor.id);
+                repository.DeleteById(film.id);
                 ShowCurrPage();
             }
             if(dialog.edited)
             {
-                Actor newAc = dialog.GetActor();
-                newAc.id = actor.id;
-                repository.Update(newAc);
+                Film newFilm = dialog.GetFilm();
+                newFilm.id = film.id;
+                repository.Update(newFilm);
                 ShowCurrPage();
             }
         }

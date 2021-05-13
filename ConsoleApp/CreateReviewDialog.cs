@@ -7,7 +7,7 @@ namespace ConsoleApp
         public bool canceled;
         public TextField reviewContentInp;
         public TextField reviewRatingInp;
-        public DateField reviewCreatedAtInp;
+        public TextField reviewCreatedAtInp;
         public CreateReviewDialog()
         {
             this.Title = "Create Review";
@@ -35,7 +35,7 @@ namespace ConsoleApp
             this.Add(reviewRatingLab,reviewRatingInp);
 
             Label reviewCreatedAtLab = new Label(2,6,"Created At:");
-            reviewCreatedAtInp = new DateField()
+            reviewCreatedAtInp = new TextField()
             {
                 X = posX, Y = Pos.Top(reviewCreatedAtLab), Width =40
             };
@@ -55,19 +55,18 @@ namespace ConsoleApp
         {
             string error = "noerrors";
             int rating = 0;
-            DateTime date = DateTime.Parse(reviewCreatedAtInp.Text.ToString());
+            DateTime date = DateTime.Now;
             if(reviewContentInp.Text.ToString() == "")
                 error = "Empty review content";
             else if(!int.TryParse(reviewRatingInp.Text.ToString(), out rating))
                 error = "Invalid review rating value";
             else if(rating <1 || rating >10)
                 error = "Review rating value is in invalid range";
-            else if(date.Year <2000 || date>DateTime.Now)
+            else if(!DateTime.TryParse(reviewCreatedAtInp.Text.ToString(), out date) ||date.Year <2000 || date>DateTime.Now)
                 error = "Review created at value is in invalid range";
             if(error == "noerrors")
             {
                 this.canceled = false;
-                MessageBox.Query("Create review", "Successfully", "OK");
                 Application.RequestStop();
             }
             else
@@ -79,7 +78,7 @@ namespace ConsoleApp
             {
                 content = reviewContentInp.Text.ToString(),
                 createdAt = DateTime.Parse(reviewCreatedAtInp.Text.ToString()),
-                rating = int.Parse(reviewContentInp.Text.ToString())
+                rating = int.Parse(reviewRatingInp.Text.ToString())
             };
         }
     }
