@@ -5,9 +5,10 @@ namespace ConsoleApp
     public class CreateReviewDialog : Dialog
     {
         public bool canceled;
-        public TextField reviewContentInp;
-        public TextField reviewRatingInp;
-        public TextField reviewCreatedAtInp;
+        protected ReviewRepository repo;
+        protected TextField reviewContentInp;
+        protected TextField reviewRatingInp;
+        //public TextField reviewCreatedAtInp;
         public CreateReviewDialog()
         {
             this.Title = "Create Review";
@@ -34,15 +35,14 @@ namespace ConsoleApp
             };
             this.Add(reviewRatingLab,reviewRatingInp);
 
-            Label reviewCreatedAtLab = new Label(2,6,"Created At:");
+            /* Label reviewCreatedAtLab = new Label(2,6,"Created At:");
             reviewCreatedAtInp = new TextField()
             {
                 X = posX, Y = Pos.Top(reviewCreatedAtLab), Width =40
             };
-            this.Add(reviewCreatedAtLab,reviewCreatedAtInp);
+            this.Add(reviewCreatedAtLab,reviewCreatedAtInp); */
 
-            Label remarkLbl = new Label(2,10,"Remark: \n-rating should be in range from 1 to 10;\n"+
-            "-date should be in range from 2000 to 2021");
+            Label remarkLbl = new Label(2,8,"Remark: \n-rating should be in range from 1 to 10");
 
             this.Add(remarkLbl);
         }
@@ -55,15 +55,15 @@ namespace ConsoleApp
         {
             string error = "noerrors";
             int rating = 0;
-            DateTime date = DateTime.Now;
+            /* DateTime date = DateTime.Now; */
             if(reviewContentInp.Text.ToString() == "")
                 error = "Empty review content";
             else if(!int.TryParse(reviewRatingInp.Text.ToString(), out rating))
                 error = "Invalid review rating value";
             else if(rating <1 || rating >10)
                 error = "Review rating value is in invalid range";
-            else if(!DateTime.TryParse(reviewCreatedAtInp.Text.ToString(), out date) ||date.Year <2000 || date>DateTime.Now)
-                error = "Review created at value is in invalid range";
+            /* else if(!DateTime.TryParse(reviewCreatedAtInp.Text.ToString(), out date) ||date.Year <2000 || date>DateTime.Now)
+                error = "Review created at value is in invalid range"; */
             if(error == "noerrors")
             {
                 this.canceled = false;
@@ -77,9 +77,13 @@ namespace ConsoleApp
             return new Review()
             {
                 content = reviewContentInp.Text.ToString(),
-                createdAt = DateTime.Parse(reviewCreatedAtInp.Text.ToString()),
+                createdAt = DateTime.Now,
                 rating = int.Parse(reviewRatingInp.Text.ToString())
             };
+        }
+        public void SetRepository(ReviewRepository repository)
+        {
+            this.repo = repository;
         }
     }
 }

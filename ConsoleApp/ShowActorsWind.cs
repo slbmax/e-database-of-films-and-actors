@@ -8,7 +8,8 @@ namespace ConsoleApp
         private ListView allActorsListView;
         private int pageSize = 10;
         private int page = 1;
-        private ActorRepository repository;
+        private ActorRepository actorRepo;
+        private RoleRepository roleRepo;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -40,17 +41,18 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepository(ActorRepository repository)
+        public void SetRepositories(ActorRepository repository, RoleRepository roleRepo)
         {
-            this.repository = repository;
+            this.actorRepo = repository;
+            this.roleRepo = roleRepo;
             ShowCurrPage();
         }
         private void ShowCurrPage()
         {
             this.pagesLabelCur.Text = page.ToString();
-            int total = repository.GetTotalPages();
+            int total = actorRepo.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allActorsListView.SetSource(repository.GetPage(page));
+            this.allActorsListView.SetSource(actorRepo.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -64,7 +66,7 @@ namespace ConsoleApp
         }
         private void OnNextPageButClicked()
         {
-            int totalPages = repository.GetTotalPages();
+            int totalPages = actorRepo.GetTotalPages();
             if(page>=totalPages)
                 return;
             this.page += 1;
@@ -87,14 +89,15 @@ namespace ConsoleApp
 
             if(dialog.deleted)
             {
-                repository.DeleteById(actor.id);
+                actorRepo.DeleteById(actor.id);
+                roleRepo.DeleteById(actor.id, "actor");
                 ShowCurrPage();
             }
             if(dialog.edited)
             {
                 Actor newAc = dialog.GetActor();
                 newAc.id = actor.id;
-                repository.Update(newAc);
+                actorRepo.Update(newAc);
                 ShowCurrPage();
             }
         }

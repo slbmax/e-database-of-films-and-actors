@@ -10,7 +10,7 @@ namespace ConsoleApp
         public void SetReview(Review review)
         {
             this.reviewContentInp.Text = review.content;
-            this.reviewCreatedAtInp.Text = review.createdAt.ToString();
+            //this.reviewCreatedAtInp.Text = review.createdAt.ToString();
             this.reviewRatingInp.Text = review.rating.ToString();
         }
     }

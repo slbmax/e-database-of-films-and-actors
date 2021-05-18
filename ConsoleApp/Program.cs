@@ -1125,10 +1125,12 @@ namespace ConsoleApp
             reader.Close();
             return role;
         }
-        public int DeleteById(int id)
+        public int DeleteById(int id, string role)
         {
+            string entity_id = "film_id";
+            if(role == "actor") entity_id = "actor_id";
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"DELETE FROM roles WHERE id = $id";
+            command.CommandText = $"DELETE FROM roles WHERE {entity_id} = $id";
             command.Parameters.AddWithValue("$id", id);
 
             int result = command.ExecuteNonQuery();
