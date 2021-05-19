@@ -37,7 +37,7 @@ namespace ConsoleApp
                 X = posX, Y = Pos.Top(filmGenreLab), Width =width
             };
             this.Add(filmGenreLab,filmGenreInp);
-            Label filmYearLab = new Label(2,6,"Year:");
+            Label filmYearLab = new Label(2,6,"Release year:");
             filmYearInp = new TextField("")
             {
                 X = posX, Y = Pos.Top(filmYearLab), Width =width
@@ -50,7 +50,7 @@ namespace ConsoleApp
             };
             this.Add(filmCastLab,filmCast);
             Label remarkLbl = new Label(2,12,$"Remark:\n -Year value should be in range from 2000 to 2021" +
-            "\n -Ids should be written through commas, like: '1,2,3'; Maximum of film`s cast is 10 actors");
+            $"\n -Ids should be written through commas, like: '1,2,3'");
 
             this.Add(remarkLbl);
 
@@ -80,11 +80,7 @@ namespace ConsoleApp
             else{
                 string actorsId = filmCast.Text.ToString();
                 string[] arrayOfStrIds = actorsId.Split(',');
-                if(arrayOfStrIds.Length >10)
-                {
-                    error = "Probably more than 10 actors are entered";
-                }
-                else if(arrayOfStrIds[0] == "")
+                if(arrayOfStrIds[0] == "")
                 {
                     error = "noerrors";
                 }
@@ -140,7 +136,6 @@ namespace ConsoleApp
         }
         public int[] GetActorsId()
         {
-            if(actorIntIds == null) throw new Exception("Empty id field");
             return actorIntIds;
         }
     }

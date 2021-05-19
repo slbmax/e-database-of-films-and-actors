@@ -8,7 +8,9 @@ namespace ConsoleApp
         private ListView allFilmsListView;
         private int pageSize = 10;
         private int page = 1;
-        private FilmRepository repository;
+        private FilmRepository filmRepo;
+        private RoleRepository roleRepo;
+        private ActorRepository actorRepo;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -22,7 +24,7 @@ namespace ConsoleApp
             {
                 X = 1, Y = 0, Width = Dim.Fill(), Height = pageSize
             };
-            allFilmsListView.OpenSelectedItem += OnOpenActor;
+            allFilmsListView.OpenSelectedItem += OnOpenFilm;
             this.Add(cancelBut, allFilmsListView);
             Label page = new Label("Page: ")
             {
@@ -40,17 +42,19 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepository(FilmRepository repository)
+        public void SetRepositories(FilmRepository repository, RoleRepository roleRepo, ActorRepository actorRepo)
         {
-            this.repository = repository;
+            this.filmRepo = repository;
+            this.roleRepo = roleRepo;
+            this.actorRepo = actorRepo;
             ShowCurrPage();
         }
         private void ShowCurrPage()
         {
             this.pagesLabelCur.Text = page.ToString();
-            int total = repository.GetTotalPages();
+            int total = filmRepo.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allFilmsListView.SetSource(repository.GetPage(page));
+            this.allFilmsListView.SetSource(filmRepo.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -64,7 +68,7 @@ namespace ConsoleApp
         }
         private void OnNextPageButClicked()
         {
-            int totalPages = repository.GetTotalPages();
+            int totalPages = filmRepo.GetTotalPages();
             if(page>=totalPages)
                 return;
             this.page += 1;
@@ -77,24 +81,37 @@ namespace ConsoleApp
             this.page -=1;
             ShowCurrPage();
         }
-        private void OnOpenActor(ListViewItemEventArgs args)
+        private void OnOpenFilm(ListViewItemEventArgs args)
         {
             Film film = (Film)args.Value;
             OpenFilmDialog dialog = new OpenFilmDialog();
+            film.actors = roleRepo.GetCast(film.id);
             dialog.SetFilm(film);
+            dialog.SetRepositories(actorRepo, filmRepo);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
-                repository.DeleteById(film.id);
+                filmRepo.DeleteById(film.id);
+                roleRepo.DeleteFilmById(film.id);
                 ShowCurrPage();
             }
             if(dialog.edited)
             {
                 Film newFilm = dialog.GetFilm();
                 newFilm.id = film.id;
-                repository.Update(newFilm);
+                filmRepo.Update(newFilm);
+                roleRepo.DeleteFilmById(film.id);
+                int[] actorsId = dialog.GetActorsId();
+                if(actorsId != null)
+                {
+                    foreach(int id in actorsId)
+                    {
+                        Role role = new Role(){actor_id = id, film_id = newFilm.id};
+                        roleRepo.Insert(role);
+                    }
+                }
                 ShowCurrPage();
             }
         }

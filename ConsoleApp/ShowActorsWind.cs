@@ -9,6 +9,7 @@ namespace ConsoleApp
         private int pageSize = 10;
         private int page = 1;
         private ActorRepository actorRepo;
+        private FilmRepository filmRepo;
         private RoleRepository roleRepo;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
@@ -41,10 +42,11 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepositories(ActorRepository repository, RoleRepository roleRepo)
+        public void SetRepositories(ActorRepository repository, RoleRepository roleRepo, FilmRepository filmRepo)
         {
             this.actorRepo = repository;
             this.roleRepo = roleRepo;
+            this.filmRepo = filmRepo;
             ShowCurrPage();
         }
         private void ShowCurrPage()
@@ -83,14 +85,16 @@ namespace ConsoleApp
         {
             Actor actor = (Actor)args.Value;
             OpenActorDialog dialog = new OpenActorDialog();
+            actor.films = roleRepo.GetAllFilms(actor.id);
             dialog.SetActor(actor);
+            dialog.SetRepositories(actorRepo, filmRepo);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
                 actorRepo.DeleteById(actor.id);
-                roleRepo.DeleteById(actor.id, "actor");
+                roleRepo.DeleteActorById(actor.id);
                 ShowCurrPage();
             }
             if(dialog.edited)
@@ -98,6 +102,17 @@ namespace ConsoleApp
                 Actor newAc = dialog.GetActor();
                 newAc.id = actor.id;
                 actorRepo.Update(newAc);
+                roleRepo.DeleteActorById(actor.id);
+                int[] filmsId = dialog.GetFilmsId();
+
+                if(filmsId != null)
+                {
+                    foreach(int id in filmsId)
+                    {
+                        Role role = new Role(){actor_id = newAc.id, film_id = id};
+                        roleRepo.Insert(role);
+                    }
+                }
                 ShowCurrPage();
             }
         }

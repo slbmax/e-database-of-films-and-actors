@@ -142,7 +142,6 @@ namespace ConsoleApp
         }
         public int[] GetFilmsId()
         {
-            if(filmIntIds == null) throw new Exception("Empty id field");
             return filmIntIds;
         }
     }

@@ -5,8 +5,6 @@ namespace ConsoleApp
 {
     public static class GUI
     {
-        private static FrameView frameListEnt;
-        private static ListView allListView;
         private static Service repo;
         public static void RunInterface(Service repositories)
         {
@@ -47,11 +45,11 @@ namespace ConsoleApp
             Application.Run();
 
         }
-        static void OnQuit()
+        private static void OnQuit()
         {
             Application.RequestStop();
         }
-        static void OnCreateButtonClicked()
+        private static void OnCreateButtonClicked()
         {
             Window window = new Window("")
             {
@@ -80,7 +78,7 @@ namespace ConsoleApp
 
             Application.Run(window);
         }
-        static void OnPageButtonClicked()
+        private static void OnPageButtonClicked()
         {
             Window window = new Window("")
             {
@@ -111,11 +109,11 @@ namespace ConsoleApp
 
             Application.Run(window);
         }
-        static void OnViewEntityButtonClicked()
+        private static void OnViewEntityButtonClicked()
         {
 
         }
-        static void OnCreateFilmButton()
+        private static void OnCreateFilmButton()
         {
             CreateFilmDialog dialog = new CreateFilmDialog();
             dialog.SetRepositories(repo.actorRepository, repo.filmRepository);
@@ -124,18 +122,18 @@ namespace ConsoleApp
             {
                 Film film = dialog.GetFilm();
                 int filmID = repo.filmRepository.Insert(film);
-                try{
-                    int[] actorsId = dialog.GetActorsId();
+                int[] actorsId = dialog.GetActorsId();
+                if(actorsId != null)
+                {
                     foreach(int id in actorsId)
                     {
                         Role role = new Role(){actor_id = id, film_id = filmID};
                         repo.roleRepository.Insert(role);
                     }
-                }
-                catch{}
+                }     
             }
         }
-        static void OnCreateActorButton()
+        private static void OnCreateActorButton()
         {
             CreateActorDialog dialog = new CreateActorDialog();
             dialog.SetRepositories(repo.actorRepository, repo.filmRepository);
@@ -144,18 +142,18 @@ namespace ConsoleApp
             {
                 Actor actor = dialog.GetActor();
                 int actorID = repo.actorRepository.Insert(actor);
-                try{
-                    int[] filmsId = dialog.GetFilmsId();
+                int[] filmsId = dialog.GetFilmsId();
+                if(filmsId != null)
+                {
                     foreach(int id in filmsId)
                     {
                         Role role = new Role(){actor_id = actorID, film_id = id};
                         repo.roleRepository.Insert(role);
                     }
                 }
-                catch{}
             }
         }
-        static void OnCreateReviewButton()
+        private static void OnCreateReviewButton()
         {
             CreateReviewDialog dialog = new CreateReviewDialog();
             dialog.SetRepository(repo.reviewRepository);
@@ -165,20 +163,19 @@ namespace ConsoleApp
                 Review review = dialog.GetReview();
             }
         }
-        static void OnPageFilmButton()
+        private static void OnPageFilmButton()
         {
             ShowFilmsWind wind = new ShowFilmsWind();
-            wind.SetRepository(repo.filmRepository);
+            wind.SetRepositories(repo.filmRepository, repo.roleRepository, repo.actorRepository);
             Application.Run(wind);
         }
-        static void OnPageActorButton()
+        private static void OnPageActorButton()
         {
             ShowActorsWind wind = new ShowActorsWind();
-            wind.SetRepositories(repo.actorRepository, repo.roleRepository);
-            
+            wind.SetRepositories(repo.actorRepository, repo.roleRepository, repo.filmRepository);
             Application.Run(wind);
         }
-        static void OnPageReviewButton()
+        private static void OnPageReviewButton()
         {
             ShowReviewsWind wind = new ShowReviewsWind();
             wind.SetRepository(repo.reviewRepository);

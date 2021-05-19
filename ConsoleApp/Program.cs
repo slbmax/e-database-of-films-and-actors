@@ -63,21 +63,6 @@ namespace ConsoleApp
             CurrentInsertedEntities currInsEnt = new CurrentInsertedEntities();
 
 
-
-            /* List<Review> reviews = repositories.reviewRepository.GetAllFilmReviews(1);
-            XML xml = new XML();
-            xml.Export("./opa.xml", reviews);
-            connection.Close();
-            Environment.Exit(0); */
-            
-            /* List<Review> reviews =XML.Import("a");
-            foreach(Review re in reviews)
-                repositories.reviewRepository.Insert(re);
-            connection.Close();
-            Environment.Exit(0);  */
-            
-
-
             bool exit = false;
             while(!exit)
             {
@@ -144,6 +129,10 @@ namespace ConsoleApp
             if(actorLinks || filmLinks)
                 Console.WriteLine("Successfull");
 ///
+
+
+
+            
             GUI.RunInterface(repositories);
             Environment.Exit(0);
 ///
@@ -419,7 +408,7 @@ namespace ConsoleApp
         public string genre;
         public int releaseYear;
         public Review[] reviews;
-        public Actor[] actors;
+        public Actor[] actors = null;
         public Film()
         {
             this.id = 0;
@@ -1125,14 +1114,19 @@ namespace ConsoleApp
             reader.Close();
             return role;
         }
-        public int DeleteById(int id, string role)
+        public int DeleteFilmById(int id)
         {
-            string entity_id = "film_id";
-            if(role == "actor") entity_id = "actor_id";
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = $"DELETE FROM roles WHERE {entity_id} = $id";
+            command.CommandText = $"DELETE FROM roles WHERE film_id = $id";
             command.Parameters.AddWithValue("$id", id);
-
+            int result = command.ExecuteNonQuery();
+            return result;
+        }
+        public int DeleteActorById(int id)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = $"DELETE FROM roles WHERE actor_id = $id";
+            command.Parameters.AddWithValue("$id", id);
             int result = command.ExecuteNonQuery();
             return result;
         }
@@ -1161,7 +1155,7 @@ namespace ConsoleApp
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText=@"SELECT films.id, title, genre, releaseYear
                                 FROM films, roles WHERE roles.actor_id=$id AND roles.film_id = films.id";
-            command.Parameters.AddWithValue("$film_id",id);
+            command.Parameters.AddWithValue("$id",id);
             SqliteDataReader reader = command.ExecuteReader();
             List<Film> allFilms = new List<Film>();
             while(reader.Read()) 
@@ -1178,8 +1172,8 @@ namespace ConsoleApp
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText=@"SELECT actors.id, fullname, country, age
-                                FROM actors, roles WHERE roles.film_id=2 AND roles.actor_id = actors.id";
-            command.Parameters.AddWithValue("$film_id",id);
+                                FROM actors, roles WHERE roles.film_id=$id AND roles.actor_id = actors.id";
+            command.Parameters.AddWithValue("$id",id);
             SqliteDataReader reader = command.ExecuteReader();
             List<Actor> cast = new List<Actor>();
             while(reader.Read()) 

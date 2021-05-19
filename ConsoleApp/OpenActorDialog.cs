@@ -1,4 +1,5 @@
 using Terminal.Gui;
+using System;
 namespace ConsoleApp
 {
     public class OpenActorDialog : Dialog
@@ -6,11 +7,14 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
+        private ActorRepository actorRepo;
+        private FilmRepository filmRepo;
         private TextField actorFullname;
         private TextField actorCountry;
         private TextField actorAge;
         private Button deleteActor;
         private Actor actor;
+        private int[] filmIntIds;
         public OpenActorDialog()
         {
             this.Title = "Open actor";
@@ -75,18 +79,28 @@ namespace ConsoleApp
         {
             EditActor dialog = new EditActor();
             dialog.SetActor(actor);
+            dialog.SetRepositories(actorRepo, filmRepo);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
                 this.edited = true;
                 actor = dialog.GetActor();
+                filmIntIds = dialog.GetFilmsId();
                 OnOpenDialogCanceled();
             }
-            
         }
         public Actor GetActor()
         {
             return actor;
+        }
+        public int[] GetFilmsId()
+        {
+            return filmIntIds;
+        }
+        public void SetRepositories(ActorRepository repository, FilmRepository filmRepo)
+        {
+            this.actorRepo = repository;
+            this.filmRepo = filmRepo;
         }
     }
 }
