@@ -21,27 +21,14 @@ namespace ConsoleApp
                     new MenuItem ("Help","",OnQuit)
                 })
             });
-            Window win = new Window("e-database of films and actors")
-            {
-                X = 0,
-                Y = 0,
-                Width = Dim.Fill(),
-                Height = Dim.Fill()
-            };
-            top.Add(menu, win);
-
-            int mainButtonsX = 2;
-            Button createEntBut = new Button(mainButtonsX, 1, "Create new entity");
-            createEntBut.Clicked += OnCreateButtonClicked;
-
-            Button viewPageBut = new Button(mainButtonsX, 3, "View all entities");
-            viewPageBut.Clicked += OnPageButtonClicked;
-
-            Button viewEntity = new Button(mainButtonsX, 5, "Select entity");
-            viewEntity.Clicked += OnViewEntityButtonClicked;
-
             
-            win.Add(createEntBut, viewPageBut, viewEntity);
+
+            MainWindow window = new MainWindow();
+            window.SetRepositories(repo);
+
+            top.Add(menu,window);
+            
+            
             Application.Run();
 
         }
@@ -49,137 +36,6 @@ namespace ConsoleApp
         {
             Application.RequestStop();
         }
-        private static void OnCreateButtonClicked()
-        {
-            Window window = new Window("")
-            {
-                X = 2,
-                Y = 14,
-                Width = 27,
-                Height = 14
-            };
-            Label label = new Label(0, 0, "Select entity to create:");
-            Button cancelBut = new Button("Cancel");
-            cancelBut.X = 1;
-            cancelBut.Y = 10;
-            cancelBut.Clicked += OnQuit;
-
-            Button filmBut = new Button(1,2,"Film");
-            filmBut.Clicked += OnCreateFilmButton;
-
-            Button actorBut = new Button(1,4,"Actor");
-            actorBut.Clicked += OnCreateActorButton;
-
-            Button reviewBut = new Button(1,6,"Review");
-            reviewBut.Clicked += OnCreateReviewButton;
-            
-
-            window.Add(label, cancelBut, filmBut, actorBut, reviewBut);
-
-            Application.Run(window);
-        }
-        private static void OnPageButtonClicked()
-        {
-            Window window = new Window("")
-            {
-                X = 2,
-                Y = 14,
-                Width = 27,
-                Height = 14
-            };
-            Label label = new Label(0, 0, "Select entity to view:");
-            Button cancelBut = new Button("Cancel");
-            cancelBut.X = 1;
-            cancelBut.Y = 10;
-            cancelBut.Clicked += OnQuit;
-
-            window.Add(label, cancelBut);
-
-            Button filmBut = new Button(1,2,"Film");
-            filmBut.Clicked += OnPageFilmButton;
-
-            Button actorBut = new Button(1,4,"Actor");
-            actorBut.Clicked += OnPageActorButton;
-
-            Button reviewBut = new Button(1,6,"Review");
-            reviewBut.Clicked += OnPageReviewButton;
-            
-
-            window.Add(label, cancelBut, filmBut, actorBut, reviewBut);
-
-            Application.Run(window);
-        }
-        private static void OnViewEntityButtonClicked()
-        {
-
-        }
-        private static void OnCreateFilmButton()
-        {
-            CreateFilmDialog dialog = new CreateFilmDialog();
-            dialog.SetRepositories(repo.actorRepository, repo.filmRepository);
-            Application.Run(dialog);
-            if(!dialog.canceled)
-            {
-                Film film = dialog.GetFilm();
-                int filmID = repo.filmRepository.Insert(film);
-                int[] actorsId = dialog.GetActorsId();
-                if(actorsId != null)
-                {
-                    foreach(int id in actorsId)
-                    {
-                        Role role = new Role(){actor_id = id, film_id = filmID};
-                        repo.roleRepository.Insert(role);
-                    }
-                }     
-            }
-        }
-        private static void OnCreateActorButton()
-        {
-            CreateActorDialog dialog = new CreateActorDialog();
-            dialog.SetRepositories(repo.actorRepository, repo.filmRepository);
-            Application.Run(dialog);
-            if(!dialog.canceled)
-            {
-                Actor actor = dialog.GetActor();
-                int actorID = repo.actorRepository.Insert(actor);
-                int[] filmsId = dialog.GetFilmsId();
-                if(filmsId != null)
-                {
-                    foreach(int id in filmsId)
-                    {
-                        Role role = new Role(){actor_id = actorID, film_id = id};
-                        repo.roleRepository.Insert(role);
-                    }
-                }
-            }
-        }
-        private static void OnCreateReviewButton()
-        {
-            CreateReviewDialog dialog = new CreateReviewDialog();
-            dialog.SetRepository(repo.reviewRepository);
-            Application.Run(dialog);
-            if(!dialog.canceled)
-            {
-                Review review = dialog.GetReview();
-            }
-        }
-        private static void OnPageFilmButton()
-        {
-            ShowFilmsWind wind = new ShowFilmsWind();
-            wind.SetRepositories(repo.filmRepository, repo.roleRepository, repo.actorRepository);
-            Application.Run(wind);
-        }
-        private static void OnPageActorButton()
-        {
-            ShowActorsWind wind = new ShowActorsWind();
-            wind.SetRepositories(repo.actorRepository, repo.roleRepository, repo.filmRepository);
-            Application.Run(wind);
-        }
-        private static void OnPageReviewButton()
-        {
-            ShowReviewsWind wind = new ShowReviewsWind();
-            wind.SetRepository(repo.reviewRepository);
-            Application.Run(wind);
-        }
+        
     }
 }

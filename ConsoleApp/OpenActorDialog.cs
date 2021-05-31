@@ -1,5 +1,5 @@
 using Terminal.Gui;
-using System;
+using System.Collections.Generic;
 namespace ConsoleApp
 {
     public class OpenActorDialog : Dialog
@@ -7,12 +7,11 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private ActorRepository actorRepo;
         private FilmRepository filmRepo;
         private TextField actorFullname;
         private TextField actorCountry;
         private TextField actorAge;
-        private Button deleteActor;
+        private ListView allFilmsListView;
         private Actor actor;
         private int[] filmIntIds;
         public OpenActorDialog()
@@ -24,40 +23,57 @@ namespace ConsoleApp
             this.AddButton(cancelBut);
 
             int posX = 20;
+            int width = 40;
             Label actorFullnameLab = new Label(2,2,"Fullname:");
             actorFullname = new TextField("")
             {
-                X = posX, Y = Pos.Top(actorFullnameLab), Width =40
+                X = posX, Y = Pos.Top(actorFullnameLab), Width =width
             };
             actorFullname.ReadOnly = true;
             this.Add(actorFullnameLab,actorFullname);
             Label actorCountryLab = new Label(2,4,"Country:");
             actorCountry = new TextField("")
             {
-                X = posX, Y = Pos.Top(actorCountryLab), Width =40
+                X = posX, Y = Pos.Top(actorCountryLab), Width =width
             };
             actorCountry.ReadOnly = true;
             this.Add(actorCountryLab,actorCountry);
             Label actorAgeLab = new Label(2,6,"Age:");
             actorAge = new TextField("")
             {
-                X = posX, Y = Pos.Top(actorAgeLab), Width =40
+                X = posX, Y = Pos.Top(actorAgeLab), Width =width
             };
-            this.Add(actorAgeLab,actorAge);
             actorAge.ReadOnly = true;
+            this.Add(actorAgeLab,actorAge);
 
-            deleteActor = new Button("Delete"){X = 2, Y = Pos.Bottom(actorAge)+6};
+            Label actorRolesLab = new Label(2,8,"Roles:");
+            this.Add(actorRolesLab);
+
+            allFilmsListView = new ListView(new List<Film>())
+            {
+                X = posX, Y = Pos.Top(actorRolesLab), Width = Dim.Fill()-5, Height = 5
+            };
+            this.Add(allFilmsListView);
+
+            Button deleteActor = new Button("Delete"){X = 2, Y = Pos.Bottom(actorAge)+6};
             deleteActor.Clicked += OnDeleteActor;
             Button editActor = new Button("Edit"){X = Pos.Right(deleteActor)+2, Y = Pos.Bottom(actorAge)+6};
             editActor.Clicked += OnEditActor;
             this.Add(deleteActor, editActor);
-
-            
         }
         private void OnOpenDialogCanceled()
         {
             this.canceled = true;
             Application.RequestStop();
+        }
+        private List<Film> GetListOfFilms()
+        {
+            List<Film> films = new List<Film>();
+            for(int i = 0; i<actor.films.Length; i ++)
+            {
+                films.Add(actor.films[i]);
+            }
+            return films;
         }
         public void SetActor(Actor actor)
         {
@@ -65,6 +81,7 @@ namespace ConsoleApp
             this.actorFullname.Text = actor.fullname;
             this.actorCountry.Text = actor.country;
             this.actorAge.Text = actor.age.ToString();
+            allFilmsListView.SetSource(GetListOfFilms());
         }
         private void OnDeleteActor()
         {
@@ -79,7 +96,7 @@ namespace ConsoleApp
         {
             EditActor dialog = new EditActor();
             dialog.SetActor(actor);
-            dialog.SetRepositories(actorRepo, filmRepo);
+            dialog.SetRepository(filmRepo);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
@@ -97,9 +114,8 @@ namespace ConsoleApp
         {
             return filmIntIds;
         }
-        public void SetRepositories(ActorRepository repository, FilmRepository filmRepo)
+        public void SetRepository(FilmRepository filmRepo)
         {
-            this.actorRepo = repository;
             this.filmRepo = filmRepo;
         }
     }

@@ -10,7 +10,6 @@ namespace ConsoleApp
         protected TextField actorCountryInp;
         protected TextField actorAgeInp;
         protected TextField actorRoles;
-        protected ActorRepository actorRepo;
         protected FilmRepository filmRepo;
         protected int[] filmIntIds;
         
@@ -53,13 +52,12 @@ namespace ConsoleApp
             this.Add(actorRolesLab,actorRoles);
 
             Label remarkLbl = new Label(2,12,$"Remark:\n -Actor`s age should be in range from 20 to 90;" +
-            "\n -Ids should be written through commas, like: '1,2,3'; Maximum of actor roles is 10");
+            "\n -Ids should be written through commas, like: '1,2,3'");
 
             this.Add(remarkLbl);
         }
-        public void SetRepositories(ActorRepository actorRepository, FilmRepository filmRepository)
+        public void SetRepository(FilmRepository filmRepository)
         {
-            this.actorRepo = actorRepository;
             this.filmRepo = filmRepository;
         }
         private void OnCreateDialogCanceled()
@@ -82,13 +80,11 @@ namespace ConsoleApp
             else{
                 string filmsId = actorRoles.Text.ToString();
                 string[] arrayOfStrIds = filmsId.Split(',');
-                if(arrayOfStrIds.Length >10)
-                {
-                    error = "Probably more than 10 films are entered";
-                }
-                else if(arrayOfStrIds[0] == "")
+                
+                if (arrayOfStrIds[0] == "" && arrayOfStrIds.Length == 1)
                 {
                     error = "noerrors";
+                    filmIntIds = new int[arrayOfStrIds.Length];
                 }
                 else{
                     filmIntIds = new int[arrayOfStrIds.Length];
@@ -98,7 +94,7 @@ namespace ConsoleApp
                             filmIntIds[i] = int.Parse(arrayOfStrIds[i]);
                         }
                         catch{
-                            error = $"Non-integer film id {arrayOfStrIds[i]}";
+                            error = $"Non-integer film id '{arrayOfStrIds[i]}'";
                             break;
                         }
                     }
@@ -109,13 +105,13 @@ namespace ConsoleApp
                         {
                             if(uniqueId.Contains(id))
                             {
-                                error = $"Same film id value {id}";
+                                error = $"Same film id value '{id}'";
                                 break;
                             }
                             Film film = filmRepo.GetById(id);
                             if(film == null)
                             {
-                                error = $"Non-existing film with id {id}";
+                                error = $"Non-existing film with id '{id}'";
                                 break;
                             }
                             uniqueId.Add(id);

@@ -2,63 +2,76 @@ using Terminal.Gui;
 using System.Collections.Generic;
 namespace ConsoleApp
 {
-    public class OpenFilmDialog : Dialog
+    public class OpenFilmDialog : Window
     {
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
         private ActorRepository actorRepo;
         private FilmRepository filmRepo;
-        private TextField filmTitle;
-        private TextField filmGenre;
-        private TextField filmYear;
+        private ReviewRepository reviewRepo;
+        private Label filmTitle;
+        private Label filmGenre;
+        private Label filmYear;
         private ListView allActorsListView;
-        private Button deleteFilm;
+        private ListView allReviewsListView;
         private Film film;
         private int[] actorIntIds;
         public OpenFilmDialog()
         {
-            this.Title = "Open Film";
-            Button cancelBut = new Button("Cancel");
+            this.Title = "Open Film"; this.Width = Dim.Fill(); this.Height = Dim.Fill();
+            Button cancelBut = new Button("Cancel"){X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnOpenDialogCanceled;
 
-            this.AddButton(cancelBut);
+            this.Add(cancelBut);
 
             int posX = 20;
             int width = 40;
             Label filmTitleLab = new Label(2,2,"Title:");
-            filmTitle = new TextField("")
+            filmTitle = new Label("")
             {
                 X = posX, Y = Pos.Top(filmTitleLab), Width =width
             };
-            filmTitle.ReadOnly = true;
+            /* filmTitle.ReadOnly = true; */
             this.Add(filmTitleLab,filmTitle);
             Label filmGenreLab = new Label(2,4,"Genre:");
-            filmGenre = new TextField("")
+            filmGenre = new Label("")
             {
                 X = posX, Y = Pos.Top(filmGenreLab), Width =width
             };
-            filmGenre.ReadOnly = true;
+            /* filmGenre.ReadOnly = true; */
             this.Add(filmGenreLab,filmGenre);
             Label filmYearLab = new Label(2,6,"Release year:");
-            filmYear = new TextField("")
+            filmYear = new Label("")
             {
                 X = posX, Y = Pos.Top(filmYearLab), Width =width
             };
-            filmYear.ReadOnly = true;
+            /* filmYear.ReadOnly = true; */
             this.Add(filmYearLab,filmYear);
+
+
             Label filmCastLab = new Label(2,8,"Cast:");
             this.Add(filmCastLab);
 
 
-            allActorsListView = new ListView(new List<Film>())
+            allActorsListView = new ListView(new List<Actor>())
             {
                 X = posX, Y = Pos.Top(filmCastLab), Width = Dim.Fill()-5, Height = 5
             };
             this.Add(allActorsListView);
+
+            Label reviewLab = new Label(2, 15, "Reviews:");
+            this.Add(reviewLab);
+
+            allReviewsListView = new ListView(new List<Review>())
+            {
+                X = posX, Y = Pos.Top(reviewLab), Width = Dim.Fill()-5, Height = 5
+            };
+            allReviewsListView.OpenSelectedItem += OnOpenReview;
+            this.Add(allReviewsListView);
             
 
-            deleteFilm = new Button("Delete"){X = 2, Y = Pos.Bottom(filmCastLab)+6};
+            Button deleteFilm = new Button("Delete"){X = 2, Y = Pos.Bottom(reviewLab)+6};
             deleteFilm.Clicked += OnDeleteFilm;
             Button editFilm = new Button("Edit"){X = Pos.Right(deleteFilm)+2, Y = Pos.Top(deleteFilm)};
             editFilm.Clicked += OnEditFilm;
@@ -68,6 +81,16 @@ namespace ConsoleApp
         {
             this.canceled = true;
             Application.RequestStop();
+        }
+        private void OnOpenReview(ListViewItemEventArgs args)
+        {
+            Review review = (Review)args.Value;
+            OpenReviewDialog dialog = new OpenReviewDialog();
+            dialog.deleteReview.Visible = false;
+            /* dialog.editReview.Visible = false; */
+            dialog.SetRepositories(filmRepo, reviewRepo);
+            dialog.SetReview(review);
+            Application.Run(dialog);
         }
         private List<Actor> GetListOfActors()
         {
@@ -85,6 +108,7 @@ namespace ConsoleApp
             this.filmTitle.Text = film.title;
             this.filmYear.Text = film.releaseYear.ToString();
             allActorsListView.SetSource(GetListOfActors());
+            allReviewsListView.SetSource(film.reviews);
         }
         private void OnDeleteFilm()
         {
@@ -99,7 +123,7 @@ namespace ConsoleApp
         {
             EditFilm dialog = new EditFilm();
             dialog.SetFilm(film);
-            dialog.SetRepositories(actorRepo, filmRepo);
+            dialog.SetRepository(actorRepo);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
@@ -117,10 +141,11 @@ namespace ConsoleApp
         {
             return actorIntIds;
         }
-        public void SetRepositories(ActorRepository repository, FilmRepository filmRepo)
+        public void SetRepositories(ActorRepository repository, FilmRepository filmRepo, ReviewRepository reviewRepo)
         {
             this.actorRepo = repository;
             this.filmRepo = filmRepo;
+            this.reviewRepo = reviewRepo;
         }
     }
 }

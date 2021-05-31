@@ -407,7 +407,7 @@ namespace ConsoleApp
         public string title;
         public string genre;
         public int releaseYear;
-        public Review[] reviews;
+        public List<Review> reviews;
         public Actor[] actors = null;
         public Film()
         {

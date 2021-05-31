@@ -11,7 +11,6 @@ namespace ConsoleApp
         protected TextField filmYearInp;
         protected TextField filmCast;
         protected ActorRepository actorRepo;
-        protected FilmRepository filmRepo;
         protected int[] actorIntIds;
         public CreateFilmDialog()
         {
@@ -60,10 +59,9 @@ namespace ConsoleApp
             this.canceled = true;
             Application.RequestStop();
         }
-        public void SetRepositories(ActorRepository actorRepository, FilmRepository filmRepository)
+        public void SetRepository(ActorRepository actorRepository)
         {
             this.actorRepo = actorRepository;
-            this.filmRepo = filmRepository;
         }
         private void OnCreateDialogSubmit()
         {
@@ -80,9 +78,10 @@ namespace ConsoleApp
             else{
                 string actorsId = filmCast.Text.ToString();
                 string[] arrayOfStrIds = actorsId.Split(',');
-                if(arrayOfStrIds[0] == "")
+                if(arrayOfStrIds[0] == "" && arrayOfStrIds.Length == 1)
                 {
                     error = "noerrors";
+                    actorIntIds = new int[arrayOfStrIds.Length];
                 }
                  else{
                     actorIntIds = new int[arrayOfStrIds.Length];
@@ -92,7 +91,7 @@ namespace ConsoleApp
                             actorIntIds[i] = int.Parse(arrayOfStrIds[i]);
                         }
                         catch{
-                            error = $"Non-integer actor id {arrayOfStrIds[i]}";
+                            error = $"Non-integer actor id '{arrayOfStrIds[i]}'";
                             break;
                         }
                     }
@@ -103,13 +102,13 @@ namespace ConsoleApp
                         {
                             if(uniqueId.Contains(id))
                             {
-                                error = $"Same actor id value {id}";
+                                error = $"Same actor id value '{id}'";
                                 break;
                             }
                             Actor actor = actorRepo.GetById(id);
                             if(actor == null)
                             {
-                                error = $"Non-existing actor with id {id}";
+                                error = $"Non-existing actor with id '{id}'";
                                 break;
                             }
                             uniqueId.Add(id);

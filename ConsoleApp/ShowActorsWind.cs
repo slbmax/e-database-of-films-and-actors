@@ -87,7 +87,7 @@ namespace ConsoleApp
             OpenActorDialog dialog = new OpenActorDialog();
             actor.films = roleRepo.GetAllFilms(actor.id);
             dialog.SetActor(actor);
-            dialog.SetRepositories(actorRepo, filmRepo);
+            dialog.SetRepository(filmRepo);
 
             Application.Run(dialog);
 
@@ -95,6 +95,9 @@ namespace ConsoleApp
             {
                 actorRepo.DeleteById(actor.id);
                 roleRepo.DeleteActorById(actor.id);
+                MessageBox.Query("Delete actor","Actor was deleted succesfully","OK");
+                int pages = actorRepo.GetTotalPages();
+                if(page>pages && page >1) page += -1;
                 ShowCurrPage();
             }
             if(dialog.edited)
@@ -108,11 +111,13 @@ namespace ConsoleApp
                 if(filmsId != null)
                 {
                     foreach(int id in filmsId)
-                    {
+                    {   
+                        if(id ==0 ) continue;
                         Role role = new Role(){actor_id = newAc.id, film_id = id};
                         roleRepo.Insert(role);
                     }
                 }
+                MessageBox.Query("Edit actor","Actor was edited succesfully","OK");
                 ShowCurrPage();
             }
         }

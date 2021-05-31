@@ -11,24 +11,25 @@ namespace ConsoleApp
         private FilmRepository filmRepo;
         private RoleRepository roleRepo;
         private ActorRepository actorRepo;
+        private ReviewRepository reviewRepo;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
         private Button prevPageButton;
         public ShowFilmsWind()
         {
-            this.Title = "List of films"; X = 30; Y = 3; Width = 87; Height = 25;
-            Button cancelBut = new Button("Cancel"){X = Pos.Percent(85),Y = Pos.Percent(95)};
+            this.Title = "List of films"; X = 10; Y = 4; Width = Dim.Fill()-10; Height = Dim.Fill()-4;
+            Button cancelBut = new Button("Cancel"){X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnQuit;
             allFilmsListView = new ListView(new List<Film>())
             {
-                X = 1, Y = 0, Width = Dim.Fill(), Height = pageSize
+                X = 1, Y = 1, Width = Dim.Fill(), Height = pageSize
             };
             allFilmsListView.OpenSelectedItem += OnOpenFilm;
             this.Add(cancelBut, allFilmsListView);
             Label page = new Label("Page: ")
             {
-                X = 1, Y = pageSize+2
+                X = 1, Y = pageSize+3
             };
             pagesLabelCur = new Label("?"){X = Pos.Right(page), Y = Pos.Top(page), Width = 5};
             Label of = new Label(" of ")
@@ -36,17 +37,18 @@ namespace ConsoleApp
                 X = Pos.Right(pagesLabelCur),Y = Pos.Top(page)
             };
             pagesLabelAll = new Label("?"){X = Pos.Right(of), Y = Pos.Top(page), Width = 5};
-            prevPageButton = new Button(1,pageSize+5,"Previous page");
+            prevPageButton = new Button(1,pageSize+6,"Previous page");
             prevPageButton.Clicked += OnPrevPageButClicked;
             nextPageButton = new Button("Next page"){X = Pos.Right(prevPageButton)+3, Y=Pos.Top(prevPageButton)};
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepositories(FilmRepository repository, RoleRepository roleRepo, ActorRepository actorRepo)
+        public void SetRepositories(FilmRepository repository, RoleRepository roleRepo, ActorRepository actorRepo, ReviewRepository reviewRepo)
         {
             this.filmRepo = repository;
             this.roleRepo = roleRepo;
             this.actorRepo = actorRepo;
+            this.reviewRepo = reviewRepo;
             ShowCurrPage();
         }
         private void ShowCurrPage()
@@ -84,10 +86,11 @@ namespace ConsoleApp
         private void OnOpenFilm(ListViewItemEventArgs args)
         {
             Film film = (Film)args.Value;
+            film.reviews = reviewRepo.GetAllFilmReviews(film.id);
             OpenFilmDialog dialog = new OpenFilmDialog();
             film.actors = roleRepo.GetCast(film.id);
             dialog.SetFilm(film);
-            dialog.SetRepositories(actorRepo, filmRepo);
+            dialog.SetRepositories(actorRepo, filmRepo, reviewRepo);
 
             Application.Run(dialog);
 
@@ -95,6 +98,9 @@ namespace ConsoleApp
             {
                 filmRepo.DeleteById(film.id);
                 roleRepo.DeleteFilmById(film.id);
+                MessageBox.Query("Delete film","Film was deleted succesfully","OK");
+                int pages = filmRepo.GetTotalPages();
+                if(page>pages && page >1) page += -1;
                 ShowCurrPage();
             }
             if(dialog.edited)
@@ -108,10 +114,12 @@ namespace ConsoleApp
                 {
                     foreach(int id in actorsId)
                     {
+                        if(id ==0 ) continue;
                         Role role = new Role(){actor_id = id, film_id = newFilm.id};
                         roleRepo.Insert(role);
                     }
                 }
+                MessageBox.Query("Edit film","Film was edited succesfully","OK");
                 ShowCurrPage();
             }
         }

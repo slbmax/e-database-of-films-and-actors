@@ -1,14 +1,16 @@
 using Terminal.Gui;
 using System;
+using System.IO;
 namespace ConsoleApp
 {
     public class CreateReviewDialog : Dialog
     {
         public bool canceled;
-        protected ReviewRepository repo;
-        protected TextField reviewContentInp;
+        protected ReviewRepository reviewRepo;
+        protected FilmRepository filmRepo;
+        protected TextView reviewContentInp;
         protected TextField reviewRatingInp;
-        //public TextField reviewCreatedAtInp;
+        protected TextField reviewFilmInp;
         public CreateReviewDialog()
         {
             this.Title = "Create Review";
@@ -21,28 +23,31 @@ namespace ConsoleApp
 
             int posX = 20;
 
-            Label reviewContentLab = new Label(2,2,"Content:");
-            reviewContentInp = new TextField()
+            Label reviewContentLab = new Label(4,2,"Your review:");
+            reviewContentInp = new TextView()
             {
-                X = posX, Y = Pos.Top(reviewContentLab), Width =40
+                X = posX, Y = Pos.Top(reviewContentLab), Width =Dim.Fill()-5, Height = 3
             };
             this.Add(reviewContentLab,reviewContentInp);
 
-            Label reviewRatingLab = new Label(2,4,"Rating:");
+
+            Label reviewFilmLab = new Label(4,7,"For film(id):");
+            reviewFilmInp = new TextField()
+            {
+                X = posX, Y = Pos.Top(reviewFilmLab), Width = 10
+            };
+            this.Add(reviewFilmLab, reviewFilmInp);
+
+            Label reviewRatingLab = new Label(4,9,"Rating:");
             reviewRatingInp = new TextField()
             {
-                X = posX, Y = Pos.Top(reviewRatingLab), Width =40
+                X = posX, Y = Pos.Top(reviewRatingLab), Width =10
             };
             this.Add(reviewRatingLab,reviewRatingInp);
 
-            /* Label reviewCreatedAtLab = new Label(2,6,"Created At:");
-            reviewCreatedAtInp = new TextField()
-            {
-                X = posX, Y = Pos.Top(reviewCreatedAtLab), Width =40
-            };
-            this.Add(reviewCreatedAtLab,reviewCreatedAtInp); */
+            
 
-            Label remarkLbl = new Label(2,8,"Remark: \n-rating should be in range from 1 to 10");
+            Label remarkLbl = new Label(4,13,"Remark: \n-rating should be in range from 1 to 10");
 
             this.Add(remarkLbl);
         }
@@ -55,15 +60,27 @@ namespace ConsoleApp
         {
             string error = "noerrors";
             int rating = 0;
-            /* DateTime date = DateTime.Now; */
             if(reviewContentInp.Text.ToString() == "")
                 error = "Empty review content";
             else if(!int.TryParse(reviewRatingInp.Text.ToString(), out rating))
                 error = "Invalid review rating value";
             else if(rating <1 || rating >10)
                 error = "Review rating value is in invalid range";
-            /* else if(!DateTime.TryParse(reviewCreatedAtInp.Text.ToString(), out date) ||date.Year <2000 || date>DateTime.Now)
-                error = "Review created at value is in invalid range"; */
+            else{
+                int filmId =0;
+                if(!int.TryParse(reviewFilmInp.Text.ToString(), out filmId))
+                {
+                    error = "Invalid film id input";
+                }
+                else
+                {
+                    Film film = filmRepo.GetById(filmId);
+                    if(film == null)
+                    {
+                        error = $"Non-existing film with id '{filmId}'";
+                    }
+                }
+            }
             if(error == "noerrors")
             {
                 this.canceled = false;
@@ -78,12 +95,14 @@ namespace ConsoleApp
             {
                 content = reviewContentInp.Text.ToString(),
                 createdAt = DateTime.Now,
-                rating = int.Parse(reviewRatingInp.Text.ToString())
+                rating = int.Parse(reviewRatingInp.Text.ToString()),
+                film_id = int.Parse(reviewFilmInp.Text.ToString())
             };
         }
-        public void SetRepository(ReviewRepository repository)
+        public void SetRepositories(ReviewRepository repository, FilmRepository filmRepository)
         {
-            this.repo = repository;
+            this.reviewRepo = repository;
+            this.filmRepo = filmRepository;
         }
     }
 }

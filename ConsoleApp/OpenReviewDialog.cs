@@ -1,50 +1,59 @@
 using Terminal.Gui;
 namespace ConsoleApp
 {
-    public class OpenReviewDialog : Dialog
+    public class OpenReviewDialog : Window
     {
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private TextField reviewContent;
-        private TextField reviewRating;
-        private TextField reviewDate;
-        private Button deleteReview;
+        private FilmRepository filmRepo;
+        private ReviewRepository reviewRepo;
+        private TextView reviewContent;
+        private Label reviewRating;
+        private Label reviewDate;
+        private Label filmLab;
+        public Button deleteReview;
+        public Button editReview;
         private Review review;
         public OpenReviewDialog()
         {
-            this.Title = "Open review";
-            Button cancelBut = new Button("Cancel");
+            this.Title = "Open review"; this.Width = 80; this.Height = 25;
+            Button cancelBut = new Button("Cancel") {X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnOpenDialogCanceled;
 
-            this.AddButton(cancelBut);
+            this.Add(cancelBut);
 
-            int posX = 20;
-            Label reviewContentLab = new Label(2,2,"Content:");
-            reviewContent = new TextField("")
+            int posX = 15;
+            Label reviewContentLab = new Label(2,1,"Content:");
+            reviewContent = new TextView()
             {
-                X = posX, Y = Pos.Top(reviewContentLab), Width =40
+                X = posX, Y = Pos.Top(reviewContentLab), Width =Dim.Fill()-posX, Height = 5
             };
-            reviewContent.ReadOnly = true;
             this.Add(reviewContentLab,reviewContent);
-            Label reviewRatingLab = new Label(2,4,"Rating:");
-            reviewRating = new TextField("")
+
+            Label filmLabel = new Label(2,8,"Film(id):");
+            filmLab = new Label()
             {
-                X = posX, Y = Pos.Top(reviewRatingLab), Width =40
+                X = posX, Y = Pos.Top(filmLabel), Width = 10
             };
-            reviewRating.ReadOnly = true;
-            this.Add(reviewRatingLab,reviewRating);
-            Label reviewDateLab = new Label(2,6,"Date:");
-            reviewDate = new TextField("")
+            this.Add(filmLabel, filmLab);
+
+            Label reviewRatingLab = new Label(2,10,"Rating:");
+            reviewRating = new Label("")
             {
-                X = posX, Y = Pos.Top(reviewDateLab), Width =40
+                X = posX, Y = Pos.Top(reviewRatingLab), Width =10
+            };
+            this.Add(reviewRatingLab,reviewRating);
+            Label reviewDateLab = new Label(2,12,"cr. Date:");
+            reviewDate = new Label("")
+            {
+                X = posX, Y = Pos.Top(reviewDateLab), Width = 30
             };
             this.Add(reviewDateLab,reviewDate);
-            reviewDate.ReadOnly = true;
 
             deleteReview = new Button("Delete"){X = 2, Y = Pos.Bottom(reviewDate)+6};
             deleteReview.Clicked += OnDeleteReview;
-            Button editReview = new Button("Edit"){X = Pos.Right(deleteReview)+2, Y = Pos.Bottom(reviewDate)+6};
+            editReview = new Button("Edit"){X = Pos.Right(deleteReview)+2, Y = Pos.Bottom(reviewDate)+6};
             editReview.Clicked += OnEditReview;
             this.Add(deleteReview, editReview);
         }
@@ -59,6 +68,7 @@ namespace ConsoleApp
             this.reviewContent.Text = review.content;
             this.reviewRating.Text = review.rating.ToString();
             this.reviewDate.Text = review.createdAt.ToString();
+            this.filmLab.Text = review.film_id.ToString();
         }
         private void OnDeleteReview()
         {
@@ -73,6 +83,7 @@ namespace ConsoleApp
         {
             EditReview dialog = new EditReview();
             dialog.SetReview(review);
+            dialog.SetRepositories(reviewRepo, filmRepo);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
@@ -84,6 +95,11 @@ namespace ConsoleApp
         public Review GetReview()
         {
             return review;
+        }
+        public void SetRepositories(FilmRepository filmRepo, ReviewRepository reviewRepo)
+        {
+            this.filmRepo = filmRepo;
+            this.reviewRepo = reviewRepo;
         }
     }
 }
