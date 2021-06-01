@@ -17,7 +17,7 @@ namespace ConsoleApp
         private Review review;
         public OpenReviewDialog()
         {
-            this.Title = "Open review"; this.Width = 80; this.Height = 25;
+            this.Title = "Open review";
             Button cancelBut = new Button("Cancel") {X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnOpenDialogCanceled;
 

@@ -84,10 +84,15 @@ namespace ConsoleApp
         }
         private void OnOpenReview(ListViewItemEventArgs args)
         {
-            Review review = (Review)args.Value;
+            Review review = new Review();
+            try{
+            review = (Review)args.Value;}
+            catch{return;}
             OpenReviewDialog dialog = new OpenReviewDialog();
             dialog.deleteReview.Visible = false;
-            /* dialog.editReview.Visible = false; */
+            dialog.editReview.Visible = false;
+            dialog.X = 2; dialog.Y = 2;
+            dialog.Width = Dim.Fill() - 2; dialog.Height = 25;
             dialog.SetRepositories(filmRepo, reviewRepo);
             dialog.SetReview(review);
             Application.Run(dialog);
@@ -107,8 +112,8 @@ namespace ConsoleApp
             this.filmGenre.Text = film.genre;
             this.filmTitle.Text = film.title;
             this.filmYear.Text = film.releaseYear.ToString();
-            allActorsListView.SetSource(GetListOfActors());
-            allReviewsListView.SetSource(film.reviews);
+            allActorsListView.SetSource(GetListOfActors().Count !=0 ? GetListOfActors() : new List<string>(){"There aren`t any actors in this film"});
+            allReviewsListView.SetSource(film.reviews.Count !=0 ? film.reviews : new List<string>(){"There aren`t any reviews in this film yet"});
         }
         private void OnDeleteFilm()
         {

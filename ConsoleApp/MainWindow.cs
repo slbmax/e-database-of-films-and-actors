@@ -25,6 +25,7 @@ namespace ConsoleApp
             Button browseActorsBut = new Button("Browse Actors");
             browseActorsBut.X = Pos.Percent(15);
             browseActorsBut.Y = Pos.Bottom(browseFilmsBut)+2;
+            browseActorsBut.Clicked += OnPageActorButton;
 
             Button profileBut = new Button("My profile");
             profileBut.X = Pos.Percent(70);

@@ -17,7 +17,7 @@ namespace ConsoleApp
         private Button prevPageButton;
         public ShowActorsWind()
         {
-            this.Title = "List of actors"; X = 30; Y = 3; Width = 87; Height = 25;
+            this.Title = "List of actors"; X = 10; Y = 4; Width = Dim.Fill()-10; Height = Dim.Fill()-4;
             Button cancelBut = new Button("Cancel"){X = Pos.Percent(85),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnQuit;
             allActorsListView = new ListView(new List<Actor>())

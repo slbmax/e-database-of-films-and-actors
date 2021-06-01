@@ -2,48 +2,45 @@ using Terminal.Gui;
 using System.Collections.Generic;
 namespace ConsoleApp
 {
-    public class OpenActorDialog : Dialog
+    public class OpenActorDialog : Window
     {
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
         private FilmRepository filmRepo;
-        private TextField actorFullname;
-        private TextField actorCountry;
-        private TextField actorAge;
+        private Label actorFullname;
+        private Label actorCountry;
+        private Label actorAge;
         private ListView allFilmsListView;
         private Actor actor;
         private int[] filmIntIds;
         public OpenActorDialog()
         {
-            this.Title = "Open actor";
-            Button cancelBut = new Button("Cancel");
+            this.Title = "Open actor"; this.Width = Dim.Fill(); this.Height = Dim.Fill();
+            Button cancelBut = new Button("Cancel") {X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnOpenDialogCanceled;
 
-            this.AddButton(cancelBut);
+            this.Add(cancelBut);
 
             int posX = 20;
             int width = 40;
             Label actorFullnameLab = new Label(2,2,"Fullname:");
-            actorFullname = new TextField("")
+            actorFullname = new Label("")
             {
                 X = posX, Y = Pos.Top(actorFullnameLab), Width =width
             };
-            actorFullname.ReadOnly = true;
             this.Add(actorFullnameLab,actorFullname);
             Label actorCountryLab = new Label(2,4,"Country:");
-            actorCountry = new TextField("")
+            actorCountry = new Label("")
             {
                 X = posX, Y = Pos.Top(actorCountryLab), Width =width
             };
-            actorCountry.ReadOnly = true;
             this.Add(actorCountryLab,actorCountry);
             Label actorAgeLab = new Label(2,6,"Age:");
-            actorAge = new TextField("")
+            actorAge = new Label("")
             {
                 X = posX, Y = Pos.Top(actorAgeLab), Width =width
             };
-            actorAge.ReadOnly = true;
             this.Add(actorAgeLab,actorAge);
 
             Label actorRolesLab = new Label(2,8,"Roles:");
@@ -55,9 +52,9 @@ namespace ConsoleApp
             };
             this.Add(allFilmsListView);
 
-            Button deleteActor = new Button("Delete"){X = 2, Y = Pos.Bottom(actorAge)+6};
+            Button deleteActor = new Button("Delete"){X = 2, Y = Pos.Bottom(actorRolesLab)+6};
             deleteActor.Clicked += OnDeleteActor;
-            Button editActor = new Button("Edit"){X = Pos.Right(deleteActor)+2, Y = Pos.Bottom(actorAge)+6};
+            Button editActor = new Button("Edit"){X = Pos.Right(deleteActor)+2, Y = Pos.Top(deleteActor)};
             editActor.Clicked += OnEditActor;
             this.Add(deleteActor, editActor);
         }
@@ -81,7 +78,7 @@ namespace ConsoleApp
             this.actorFullname.Text = actor.fullname;
             this.actorCountry.Text = actor.country;
             this.actorAge.Text = actor.age.ToString();
-            allFilmsListView.SetSource(GetListOfFilms());
+            allFilmsListView.SetSource(GetListOfFilms().Count != 0 ? GetListOfFilms() : new List<string>(){"Actor has not acted in a films yet"});
         }
         private void OnDeleteActor()
         {
