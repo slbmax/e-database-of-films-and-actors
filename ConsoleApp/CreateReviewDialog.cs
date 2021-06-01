@@ -1,6 +1,7 @@
 using Terminal.Gui;
 using System;
 using System.IO;
+using ClassLib;
 namespace ConsoleApp
 {
     public class CreateReviewDialog : Dialog

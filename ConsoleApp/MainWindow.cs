@@ -1,19 +1,22 @@
 using Terminal.Gui;
+using ClassLib;
 namespace ConsoleApp
 {
     public class MainWindow : Window
     {
         private static Service repo;
+        private User user;
+        private Label labUser; 
         public MainWindow()
         {
-            this.Title = "FilMax";
+            this.Title = "FilMax";this.X = 0; this.Y =1;
 
             Label labWelcome = new Label("Hello! Glad to see you!\nThis is a FilMax - an e-database of films and actors");
             labWelcome.X = Pos.Percent(28);
             labWelcome.Y = 4;
             labWelcome.TextAlignment = TextAlignment.Centered;
             
-            Label labUser = new Label("Logged in as:");
+            labUser = new Label();
             labUser.X = 1;
             labUser.Y = Pos.Percent(98);
 
@@ -39,13 +42,24 @@ namespace ConsoleApp
             Button logOutBut = new Button("Log out");
             logOutBut.X = Pos.Percent(90);
             logOutBut.Y = Pos.Percent(98);
+            logOutBut.Clicked+= OnLogOutButton;
 
             
             this.Add(labWelcome, browseFilmsBut,browseActorsBut,createRewBut, profileBut, labUser, logOutBut);
         }
+        private void OnLogOutButton()
+        {
+            Application.Top.RemoveAll();
+            GUI.OnRegistration();
+        }
         public void SetRepositories(Service service)
         {
            repo = service;
+        }
+        public void SetUser(User currUser)
+        {
+            user = currUser;
+            labUser.Text = $"Logged in as: {user.username}"; 
         }
         private static void OnQuit()
         {

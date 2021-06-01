@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Xml.Serialization;
 using System.Collections.Generic;
-
+using ClassLib;
 namespace ConsoleApp
 {
     public static class XML

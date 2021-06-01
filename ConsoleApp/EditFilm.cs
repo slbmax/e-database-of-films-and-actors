@@ -1,4 +1,5 @@
 using Terminal.Gui;
+using ClassLib;
 namespace ConsoleApp
 {
     public class EditFilm : CreateFilmDialog

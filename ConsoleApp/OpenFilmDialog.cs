@@ -1,4 +1,5 @@
 using Terminal.Gui;
+using ClassLib;
 using System.Collections.Generic;
 namespace ConsoleApp
 {

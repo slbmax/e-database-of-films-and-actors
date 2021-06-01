@@ -1,5 +1,6 @@
 using Terminal.Gui;
 using System.Collections.Generic;
+using ClassLib;
 namespace ConsoleApp
 {
     public class OpenActorDialog : Window

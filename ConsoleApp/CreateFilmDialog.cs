@@ -1,6 +1,7 @@
 using Terminal.Gui;
 using System;
 using System.Collections.Generic;
+using ClassLib;
 namespace ConsoleApp
 {
     public class CreateFilmDialog : Dialog
