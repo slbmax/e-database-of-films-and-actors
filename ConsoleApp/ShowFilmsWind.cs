@@ -1,6 +1,7 @@
 using Terminal.Gui;
 using System.Collections.Generic;
 using ClassLib;
+using System;
 namespace ConsoleApp
 {
     public class ShowFilmsWind : Window
@@ -14,6 +15,9 @@ namespace ConsoleApp
         public Label pagesLabelAll;
         private Button nextPageButton;
         private Button prevPageButton;
+        private string filtervalue ="";
+        private TextField searchField;
+        private User user;
         public ShowFilmsWind()
         {
             this.Title = "List of films"; X = 10; Y = 4; Width = Dim.Fill()-10; Height = Dim.Fill()-4;
@@ -40,23 +44,47 @@ namespace ConsoleApp
             nextPageButton = new Button("Next page"){X = Pos.Right(prevPageButton)+3, Y=Pos.Top(prevPageButton)};
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
+
+            searchField = new TextField()
+            {
+                X = Pos.Right(nextPageButton)+2, Y = Pos.Top(nextPageButton), Width = Dim.Fill()-5
+            };
+            searchField.TextChanging += OnSearchEnter;
+            this.Add(searchField);
         }
         public void SetService(Service repo)
         {
             this.service = repo;
             ShowCurrPage();
         }
+        private void OnSearchEnter(TextChangingEventArgs obj)
+        {
+            this.filtervalue = obj.NewText.ToString();
+            page = 1;
+            ShowCurrPage();
+        }
         private void ShowCurrPage()
         {
             this.pagesLabelCur.Text = page.ToString();
-            int total = service.filmRepository.GetTotalPages();
+            int total = service.filmRepository.GetSearchPagesCount(filtervalue);
             this.pagesLabelAll.Text = total.ToString();
-            this.allFilmsListView.SetSource(service.filmRepository.GetPage(page));
+            this.allFilmsListView.SetSource(service.filmRepository.GetSearchPage(filtervalue, page));
+            this.nextPageButton.Visible = true;
+            this.prevPageButton.Visible = true;
             if(total==0)
             {
                 this.page = 0;
-                this.pagesLabelCur.Text = page.ToString();
+                this.pagesLabelAll.Text ="x";
+                this.pagesLabelCur.Text ="x";
+                this.nextPageButton.Visible = false;
+                this.prevPageButton.Visible = false;
+                this.allFilmsListView.SetSource(new List<string>(){"No results"});
             }
+            Application.Refresh();
+        }
+        public void SetUser(User currUser)
+        {
+            this.user = currUser; 
         }
         private void OnQuit()
         {
@@ -65,7 +93,7 @@ namespace ConsoleApp
         }
         private void OnNextPageButClicked()
         {
-            int totalPages = service.filmRepository.GetTotalPages();
+            int totalPages = service.filmRepository.GetSearchPagesCount(filtervalue);
             if(page>=totalPages)
                 return;
             this.page += 1;
@@ -80,12 +108,15 @@ namespace ConsoleApp
         }
         private void OnOpenFilm(ListViewItemEventArgs args)
         {
-            Film film = (Film)args.Value;
+            Film film = new Film();
+            try{
+            film = (Film)args.Value;}catch{return;}
             film.reviews = service.reviewRepository.GetAllFilmReviews(film.id);
             OpenFilmDialog dialog = new OpenFilmDialog();
             film.actors = service.roleRepository.GetCast(film.id);
-            dialog.SetFilm(film);
             dialog.SetService(service);
+            dialog.SetFilm(film);
+            dialog.SetUser(user);
 
             Application.Run(dialog);
 
@@ -93,28 +124,14 @@ namespace ConsoleApp
             {
                 service.filmRepository.DeleteById(film.id);
                 service.roleRepository.DeleteFilmById(film.id);
+                service.reviewRepository.DeleteByFilmId(film.id);
                 MessageBox.Query("Delete film","Film was deleted succesfully","OK");
-                int pages = service.filmRepository.GetTotalPages();
+                int pages = service.filmRepository.GetSearchPagesCount(filtervalue);
                 if(page>pages && page >1) page += -1;
                 ShowCurrPage();
             }
             if(dialog.edited)
             {
-                Film newFilm = dialog.GetFilm();
-                newFilm.id = film.id;
-                service.filmRepository.Update(newFilm);
-                service.roleRepository.DeleteFilmById(film.id);
-                int[] actorsId = dialog.GetActorsId();
-                if(actorsId != null)
-                {
-                    foreach(int id in actorsId)
-                    {
-                        if(id ==0 ) continue;
-                        Role role = new Role(){actor_id = id, film_id = newFilm.id};
-                        service.roleRepository.Insert(role);
-                    }
-                }
-                MessageBox.Query("Edit film","Film was edited succesfully","OK");
                 ShowCurrPage();
             }
         }

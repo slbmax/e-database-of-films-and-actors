@@ -101,22 +101,14 @@ namespace ClassLib
             reader.Close();
             return actors;
         }
-        public List<Actor> GetExport(string valueX)
+        public int GetSearchCount(string valueX)
         {
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM actors WHERE user LIKE $valueX";
-            command.Parameters.AddWithValue("$valueX", valueX);
+            command.CommandText = @"SELECT COUNT(*) FROM actors WHERE fullname LIKE '%' || $value || '%'";
+            command.Parameters.AddWithValue("$value", valueX);
 
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Actor> actorsToExport = new List<Actor>(); 
-            while(reader.Read())
-            {
-                Actor actor = GetActor(reader);
-                
-                actorsToExport.Add(actor);
-            }
-            reader.Close();
-            return actorsToExport;
+            long count = (long)command.ExecuteScalar();
+            return (int)count;
         }
         public bool Update(Actor actor)
         {
@@ -143,6 +135,30 @@ namespace ClassLib
             int[] array = new int[ids.Count];
             ids.CopyTo(array);
             return array;
+        }
+
+        public int GetSearchPagesCount(string searchTitle)
+        {
+            const int pageSize = 10;
+            return (int)Math.Ceiling(GetSearchCount(searchTitle) / (double)pageSize);
+        }
+        public List<Actor> GetSearchPage(string searchTitle, int page)
+        {
+            const int pageSize = 10;
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM actors WHERE fullname LIKE '%' || $value || '%' LIMIT $pageSize OFFSET $offset";
+            command.Parameters.AddWithValue("$pageSize",pageSize);
+            command.Parameters.AddWithValue("offset",pageSize*(page-1));
+            command.Parameters.AddWithValue("$value", searchTitle);
+            List<Actor> actors = new List<Actor>();
+            SqliteDataReader reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                Actor actor = GetActor(reader);
+                actors.Add(actor);
+            }
+            reader.Close();
+            return actors;
         }
     }
 }

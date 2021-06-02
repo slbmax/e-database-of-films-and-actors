@@ -48,7 +48,6 @@ namespace ConsoleApp
                 top.Add(window,menu);
                 Application.Run();
             }
-        }
-        
+        }      
     }
 }

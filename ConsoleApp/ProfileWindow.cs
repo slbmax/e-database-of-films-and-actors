@@ -16,7 +16,7 @@ namespace ConsoleApp
         private User user;
         public ProfileWindow()
         {
-            this.Title = "My profile";X = 10; Y = 4; Width = Dim.Fill()-10; Height = Dim.Fill()-4;
+            this.Title = "My profile";X = 10; Y = 3; Width = Dim.Fill()-10; Height = Dim.Fill()-3;
             Button cancelBut = new Button("Cancel"){X = Pos.Percent(87),Y = Pos.Percent(95)};
             cancelBut.Clicked += OnQuit;
             this.Add(cancelBut);
@@ -59,7 +59,7 @@ namespace ConsoleApp
 
             Label reviewsLbl = new Label("My Reviews:")
             {
-                X = 1, Y = Pos.Top(roleLbl)+2
+                X = Pos.Center(), Y = Pos.Top(roleLbl)+2
             };
             allReviewsListView = new ListView(new List<Review>())
             {
@@ -68,7 +68,7 @@ namespace ConsoleApp
             allReviewsListView.OpenSelectedItem += OnOpenReview;
             FrameView frame = new FrameView()
             {
-                X = 1, Y = Pos.Bottom(reviewsLbl)+1, Width = Dim.Fill() - 5, Height = 7
+                X = Pos.Center(), Y = Pos.Bottom(reviewsLbl), Width = Dim.Fill() - 4, Height = 9
             };
             frame.Add(allReviewsListView);
             this.Add(reviewsLbl, frame);
@@ -86,7 +86,9 @@ namespace ConsoleApp
             this.fullname.Text = user.fullname;
             this.regDate.Text = user.registrationDate.ToString();
             this.role.Text = user.role;
-            this.allReviewsListView.SetSource(user.reviews.Count == 0 ? new List<string>(){"There aren`t any reviews yet"}: user.reviews);
+            this.allReviewsListView.SetSource(service.reviewRepository.GetAllAuthorReviews(user.id).Count == 0 
+            ? new List<string>(){"There aren`t any reviews yet"}
+            : service.reviewRepository.GetAllAuthorReviews(user.id));
         }
         private void OnOpenReview(ListViewItemEventArgs args)
         {
@@ -95,13 +97,32 @@ namespace ConsoleApp
             review = (Review)args.Value;}
             catch{return;}
             OpenReviewDialog dialog = new OpenReviewDialog();
-            dialog.deleteReview.Visible = false;
-            dialog.editReview.Visible = false;
             dialog.X = 2; dialog.Y = 2;
             dialog.Width = Dim.Fill() - 2; dialog.Height = 25;
-            dialog.SetRepositories(service.filmRepository, service.reviewRepository);
+            dialog.SetService(service);
             dialog.SetReview(review);
+            dialog.SetUser(user);
             Application.Run(dialog);
+            if(dialog.canceled)
+            {
+                return;
+            }
+            else if(dialog.deleted)
+            {
+                service.reviewRepository.DeleteById(review.id);
+                MessageBox.Query("Delete review","Review was deleted succesfully","OK");
+                allReviewsListView.SetSource(service.reviewRepository.GetAllAuthorReviews(user.id).Count !=0 
+                ? service.reviewRepository.GetAllAuthorReviews(user.id) : new List<string>(){"There aren`t any reviews in this film yet"});
+            }
+            else if(dialog.edited)
+            {
+                Review newReview = dialog.GetReview();
+                newReview.id = review.id;
+                newReview.createdAt = review.createdAt;
+                service.reviewRepository.Update(newReview);
+                MessageBox.Query("Edit review","Review was edited succesfully","OK");
+                allReviewsListView.SetSource(service.reviewRepository.GetAllAuthorReviews(user.id));
+            }
         }
         public void SetService(Service service)
         {

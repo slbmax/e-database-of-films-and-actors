@@ -6,7 +6,8 @@ namespace ConsoleApp
     {
         public EditReview()
         {
-            this.Title = "Edit review";      
+            this.Title = "Edit review"; 
+            this.reviewFilmInp.ReadOnly = true;     
         }
         public void SetReview(Review review)
         {

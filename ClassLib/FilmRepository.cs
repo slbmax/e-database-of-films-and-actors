@@ -97,22 +97,14 @@ namespace ClassLib
             reader.Close();
             return films;
         }
-        public List<Film> GetExport(string valueX)
+        public int GetSearchCount(string valueX)
         {
             SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM films WHERE user LIKE $valueX";
-            command.Parameters.AddWithValue("$valueX", valueX);
+            command.CommandText = @"SELECT COUNT(*) FROM films WHERE title LIKE '%' || $value || '%'";
+            command.Parameters.AddWithValue("$value", valueX);
 
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Film> filmsToExport = new List<Film>();
-            while(reader.Read())
-            {
-                Film film = GetFilm(reader);
-                
-                filmsToExport.Add(film);
-            }
-            reader.Close();
-            return filmsToExport;
+            long count = (long)command.ExecuteScalar();
+            return (int)count;
         }
         public List<Film> GetAll()
         {
@@ -175,6 +167,29 @@ namespace ClassLib
             int[] array = new int[ids.Count];
             ids.CopyTo(array);
             return array;
+        }
+        public int GetSearchPagesCount(string searchTitle)
+        {
+            const int pageSize = 10;
+            return (int)Math.Ceiling(GetSearchCount(searchTitle) / (double)pageSize);
+        }
+        public List<Film> GetSearchPage(string searchTitle, int page)
+        {
+            const int pageSize = 10;
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM films WHERE title LIKE '%' || $value || '%' LIMIT $pageSize OFFSET $offset";
+            command.Parameters.AddWithValue("$pageSize",pageSize);
+            command.Parameters.AddWithValue("offset",pageSize*(page-1));
+            command.Parameters.AddWithValue("$value", searchTitle);
+            List<Film> films = new List<Film>();
+            SqliteDataReader reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                Film film = GetFilm(reader);
+                films.Add(film);
+            }
+            reader.Close();
+            return films;
         }
     }
 }

@@ -168,5 +168,19 @@ namespace ClassLib
             reader.Close();
             return user;
         }
+        public bool Update(User user)
+        {
+            SqliteCommand command = this.connection.CreateCommand();
+            command.CommandText = @"UPDATE users SET username = $u, password = $p, fullname = $f,
+            role = $r, registrationDate = $rd WHERE id = $id";
+            command.Parameters.AddWithValue("$id", user.id);
+            command.Parameters.AddWithValue("$u", user.username);
+            command.Parameters.AddWithValue("$p", user.password);
+            command.Parameters.AddWithValue("$f", user.fullname);
+            command.Parameters.AddWithValue("$r", user.role);
+            command.Parameters.AddWithValue("$rd", user.registrationDate.ToString("o"));
+            int nChanged = command.ExecuteNonQuery();
+            return nChanged == 1;
+        }
     }
 }

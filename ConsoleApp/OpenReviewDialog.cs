@@ -7,15 +7,16 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private FilmRepository filmRepo;
-        private ReviewRepository reviewRepo;
+        private Service service;
         private TextView reviewContent;
         private Label reviewRating;
         private Label reviewDate;
         private Label filmLab;
+        private Label byUser;
         public Button deleteReview;
         public Button editReview;
         private Review review;
+        private User user;
         public OpenReviewDialog()
         {
             this.Title = "Open review";
@@ -32,7 +33,7 @@ namespace ConsoleApp
             };
             this.Add(reviewContentLab,reviewContent);
 
-            Label filmLabel = new Label(2,8,"Film(id):");
+            Label filmLabel = new Label(2,8,"For film:");
             filmLab = new Label()
             {
                 X = posX, Y = Pos.Top(filmLabel), Width = 10
@@ -40,7 +41,7 @@ namespace ConsoleApp
             this.Add(filmLabel, filmLab);
 
             Label reviewRatingLab = new Label(2,10,"Rating:");
-            reviewRating = new Label("")
+            reviewRating = new Label(" ")
             {
                 X = posX, Y = Pos.Top(reviewRatingLab), Width =10
             };
@@ -52,6 +53,12 @@ namespace ConsoleApp
             };
             this.Add(reviewDateLab,reviewDate);
 
+            Label userLab = new Label(2,14,"By user:");
+            byUser = new Label()
+            {
+                X = posX, Y = Pos.Top(userLab)
+            };
+            this.Add(userLab,byUser);
             deleteReview = new Button("Delete"){X = 2, Y = Pos.Bottom(reviewDate)+6};
             deleteReview.Clicked += OnDeleteReview;
             editReview = new Button("Edit"){X = Pos.Right(deleteReview)+2, Y = Pos.Bottom(reviewDate)+6};
@@ -69,7 +76,12 @@ namespace ConsoleApp
             this.reviewContent.Text = review.content;
             this.reviewRating.Text = review.rating.ToString();
             this.reviewDate.Text = review.createdAt.ToString();
-            this.filmLab.Text = review.film_id.ToString();
+            this.filmLab.Text = service.filmRepository.GetById(review.film_id).title.ToString();
+            this.byUser.Text = service.userRepository.GetById(review.user_id).username.ToString();
+        }
+        public void SetUser(User user)
+        {
+            this.user = user;
         }
         private void OnDeleteReview()
         {
@@ -84,23 +96,28 @@ namespace ConsoleApp
         {
             EditReview dialog = new EditReview();
             dialog.SetReview(review);
-            dialog.SetRepositories(reviewRepo, filmRepo);
+            dialog.SetUser(user);
+            dialog.SetRepositories(service.reviewRepository, service.filmRepository);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
                 this.edited = true;
-                review = dialog.GetReview();
-                OnOpenDialogCanceled();
+                Review newReview = dialog.GetReview();
+                newReview.id = review.id;
+                newReview.createdAt = review.createdAt;
+                service.reviewRepository.Update(newReview);
+                review = newReview;
+                MessageBox.Query("Edit review","Review was edited succesfully","OK");
+                SetReview(review);
             }
         }
         public Review GetReview()
         {
             return review;
         }
-        public void SetRepositories(FilmRepository filmRepo, ReviewRepository reviewRepo)
+        public void SetService(Service service)
         {
-            this.filmRepo = filmRepo;
-            this.reviewRepo = reviewRepo;
+            this.service= service;
         }
     }
 }
