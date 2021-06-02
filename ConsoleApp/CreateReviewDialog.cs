@@ -12,6 +12,7 @@ namespace ConsoleApp
         protected TextView reviewContentInp;
         protected TextField reviewRatingInp;
         protected TextField reviewFilmInp;
+        protected User user;
         public CreateReviewDialog()
         {
             this.Title = "Create Review";
@@ -57,6 +58,10 @@ namespace ConsoleApp
             this.canceled = true;
             Application.RequestStop();
         }
+        public void SetUser(User currUser)
+        {
+            this.user = currUser; 
+        }
         private void OnCreateDialogSubmit()
         {
             string error = "noerrors";
@@ -97,7 +102,8 @@ namespace ConsoleApp
                 content = reviewContentInp.Text.ToString(),
                 createdAt = DateTime.Now,
                 rating = int.Parse(reviewRatingInp.Text.ToString()),
-                film_id = int.Parse(reviewFilmInp.Text.ToString())
+                film_id = int.Parse(reviewFilmInp.Text.ToString()),
+                user_id = user.id
             };
         }
         public void SetRepositories(ReviewRepository repository, FilmRepository filmRepository)

@@ -17,6 +17,8 @@ namespace ClassLib
             review.content = reader.GetString(1);
             review.rating = int.Parse(reader.GetString(2));
             review.createdAt= DateTime.Parse(reader.GetString(3));
+            review.user_id = int.Parse(reader.GetString(4));
+            review.film_id = int.Parse(reader.GetString(5));
             return review;
         }
         public Review GetById(int id)
@@ -116,7 +118,7 @@ namespace ClassLib
             reader.Close();
             return reviewsToExport;
         }
-        public Review[] GetAllAuthorReviews(int id)
+        public List<Review> GetAllAuthorReviews(int id)
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM reviews WHERE user_id = $id";
@@ -130,9 +132,7 @@ namespace ClassLib
                 userReviews.Add(review);
             }
             reader.Close();
-            Review[] allUserReviews = new Review[userReviews.Count];
-            userReviews.CopyTo(allUserReviews);
-            return allUserReviews;
+            return userReviews;
         }
         public List<Review> GetAllFilmReviews(int id)
         {

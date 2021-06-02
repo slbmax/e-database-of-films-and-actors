@@ -8,9 +8,7 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private ActorRepository actorRepo;
-        private FilmRepository filmRepo;
-        private ReviewRepository reviewRepo;
+        private Service service;
         private Label filmTitle;
         private Label filmGenre;
         private Label filmYear;
@@ -94,7 +92,7 @@ namespace ConsoleApp
             dialog.editReview.Visible = false;
             dialog.X = 2; dialog.Y = 2;
             dialog.Width = Dim.Fill() - 2; dialog.Height = 25;
-            dialog.SetRepositories(filmRepo, reviewRepo);
+            dialog.SetRepositories(service.filmRepository, service.reviewRepository);
             dialog.SetReview(review);
             Application.Run(dialog);
         }
@@ -129,7 +127,7 @@ namespace ConsoleApp
         {
             EditFilm dialog = new EditFilm();
             dialog.SetFilm(film);
-            dialog.SetRepository(actorRepo);
+            dialog.SetRepository(service.actorRepository);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
@@ -147,11 +145,9 @@ namespace ConsoleApp
         {
             return actorIntIds;
         }
-        public void SetRepositories(ActorRepository repository, FilmRepository filmRepo, ReviewRepository reviewRepo)
+        public void SetService(Service service)
         {
-            this.actorRepo = repository;
-            this.filmRepo = filmRepo;
-            this.reviewRepo = reviewRepo;
+            this.service = service;
         }
     }
 }

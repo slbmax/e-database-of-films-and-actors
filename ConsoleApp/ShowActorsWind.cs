@@ -9,9 +9,7 @@ namespace ConsoleApp
         private ListView allActorsListView;
         private int pageSize = 10;
         private int page = 1;
-        private ActorRepository actorRepo;
-        private FilmRepository filmRepo;
-        private RoleRepository roleRepo;
+        private Service service;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -43,19 +41,17 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepositories(ActorRepository repository, RoleRepository roleRepo, FilmRepository filmRepo)
+        public void SetService(Service service)
         {
-            this.actorRepo = repository;
-            this.roleRepo = roleRepo;
-            this.filmRepo = filmRepo;
+            this.service = service;
             ShowCurrPage();
         }
         private void ShowCurrPage()
         {
             this.pagesLabelCur.Text = page.ToString();
-            int total = actorRepo.GetTotalPages();
+            int total = service.actorRepository.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allActorsListView.SetSource(actorRepo.GetPage(page));
+            this.allActorsListView.SetSource(service.actorRepository.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -69,7 +65,7 @@ namespace ConsoleApp
         }
         private void OnNextPageButClicked()
         {
-            int totalPages = actorRepo.GetTotalPages();
+            int totalPages = service.actorRepository.GetTotalPages();
             if(page>=totalPages)
                 return;
             this.page += 1;
@@ -86,18 +82,18 @@ namespace ConsoleApp
         {
             Actor actor = (Actor)args.Value;
             OpenActorDialog dialog = new OpenActorDialog();
-            actor.films = roleRepo.GetAllFilms(actor.id);
+            actor.films = service.roleRepository.GetAllFilms(actor.id);
             dialog.SetActor(actor);
-            dialog.SetRepository(filmRepo);
+            dialog.SetRepository(service.filmRepository);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
-                actorRepo.DeleteById(actor.id);
-                roleRepo.DeleteActorById(actor.id);
+                service.actorRepository.DeleteById(actor.id);
+                service.roleRepository.DeleteActorById(actor.id);
                 MessageBox.Query("Delete actor","Actor was deleted succesfully","OK");
-                int pages = actorRepo.GetTotalPages();
+                int pages = service.actorRepository.GetTotalPages();
                 if(page>pages && page >1) page += -1;
                 ShowCurrPage();
             }
@@ -105,8 +101,8 @@ namespace ConsoleApp
             {
                 Actor newAc = dialog.GetActor();
                 newAc.id = actor.id;
-                actorRepo.Update(newAc);
-                roleRepo.DeleteActorById(actor.id);
+                service.actorRepository.Update(newAc);
+                service.roleRepository.DeleteActorById(actor.id);
                 int[] filmsId = dialog.GetFilmsId();
 
                 if(filmsId != null)
@@ -115,7 +111,7 @@ namespace ConsoleApp
                     {   
                         if(id ==0 ) continue;
                         Role role = new Role(){actor_id = newAc.id, film_id = id};
-                        roleRepo.Insert(role);
+                        service.roleRepository.Insert(role);
                     }
                 }
                 MessageBox.Query("Edit actor","Actor was edited succesfully","OK");

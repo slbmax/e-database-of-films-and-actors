@@ -9,10 +9,7 @@ namespace ConsoleApp
         private ListView allFilmsListView;
         private int pageSize = 10;
         private int page = 1;
-        private FilmRepository filmRepo;
-        private RoleRepository roleRepo;
-        private ActorRepository actorRepo;
-        private ReviewRepository reviewRepo;
+        private Service service;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -44,20 +41,17 @@ namespace ConsoleApp
             nextPageButton.Clicked += OnNextPageButClicked;
             this.Add(page,pagesLabelCur,of,pagesLabelAll,prevPageButton, nextPageButton);
         }
-        public void SetRepositories(FilmRepository repository, RoleRepository roleRepo, ActorRepository actorRepo, ReviewRepository reviewRepo)
+        public void SetService(Service repo)
         {
-            this.filmRepo = repository;
-            this.roleRepo = roleRepo;
-            this.actorRepo = actorRepo;
-            this.reviewRepo = reviewRepo;
+            this.service = repo;
             ShowCurrPage();
         }
         private void ShowCurrPage()
         {
             this.pagesLabelCur.Text = page.ToString();
-            int total = filmRepo.GetTotalPages();
+            int total = service.filmRepository.GetTotalPages();
             this.pagesLabelAll.Text = total.ToString();
-            this.allFilmsListView.SetSource(filmRepo.GetPage(page));
+            this.allFilmsListView.SetSource(service.filmRepository.GetPage(page));
             if(total==0)
             {
                 this.page = 0;
@@ -71,7 +65,7 @@ namespace ConsoleApp
         }
         private void OnNextPageButClicked()
         {
-            int totalPages = filmRepo.GetTotalPages();
+            int totalPages = service.filmRepository.GetTotalPages();
             if(page>=totalPages)
                 return;
             this.page += 1;
@@ -87,20 +81,20 @@ namespace ConsoleApp
         private void OnOpenFilm(ListViewItemEventArgs args)
         {
             Film film = (Film)args.Value;
-            film.reviews = reviewRepo.GetAllFilmReviews(film.id);
+            film.reviews = service.reviewRepository.GetAllFilmReviews(film.id);
             OpenFilmDialog dialog = new OpenFilmDialog();
-            film.actors = roleRepo.GetCast(film.id);
+            film.actors = service.roleRepository.GetCast(film.id);
             dialog.SetFilm(film);
-            dialog.SetRepositories(actorRepo, filmRepo, reviewRepo);
+            dialog.SetService(service);
 
             Application.Run(dialog);
 
             if(dialog.deleted)
             {
-                filmRepo.DeleteById(film.id);
-                roleRepo.DeleteFilmById(film.id);
+                service.filmRepository.DeleteById(film.id);
+                service.roleRepository.DeleteFilmById(film.id);
                 MessageBox.Query("Delete film","Film was deleted succesfully","OK");
-                int pages = filmRepo.GetTotalPages();
+                int pages = service.filmRepository.GetTotalPages();
                 if(page>pages && page >1) page += -1;
                 ShowCurrPage();
             }
@@ -108,8 +102,8 @@ namespace ConsoleApp
             {
                 Film newFilm = dialog.GetFilm();
                 newFilm.id = film.id;
-                filmRepo.Update(newFilm);
-                roleRepo.DeleteFilmById(film.id);
+                service.filmRepository.Update(newFilm);
+                service.roleRepository.DeleteFilmById(film.id);
                 int[] actorsId = dialog.GetActorsId();
                 if(actorsId != null)
                 {
@@ -117,7 +111,7 @@ namespace ConsoleApp
                     {
                         if(id ==0 ) continue;
                         Role role = new Role(){actor_id = id, film_id = newFilm.id};
-                        roleRepo.Insert(role);
+                        service.roleRepository.Insert(role);
                     }
                 }
                 MessageBox.Query("Edit film","Film was edited succesfully","OK");

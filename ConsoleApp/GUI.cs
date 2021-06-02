@@ -43,7 +43,7 @@ namespace ConsoleApp
                     })
                 });
                 MainWindow window = new MainWindow();
-                window.SetRepositories(repo);
+                window.SetService(repo);
                 window.SetUser(currUser);
                 top.Add(window,menu);
                 Application.Run();

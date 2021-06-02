@@ -1,4 +1,5 @@
 using Terminal.Gui;
+using System.IO;
 using ClassLib;
 namespace ConsoleApp
 {
@@ -33,6 +34,7 @@ namespace ConsoleApp
             Button profileBut = new Button("My profile");
             profileBut.X = Pos.Percent(70);
             profileBut.Y = Pos.Top(browseFilmsBut);
+            profileBut.Clicked+= OnProfileButton;
 
             Button createRewBut = new Button("Write a review");
             createRewBut.X = Pos.Percent(70);
@@ -52,14 +54,15 @@ namespace ConsoleApp
             Application.Top.RemoveAll();
             GUI.OnRegistration();
         }
-        public void SetRepositories(Service service)
+        public void SetService(Service service)
         {
            repo = service;
         }
         public void SetUser(User currUser)
         {
-            user = currUser;
-            labUser.Text = $"Logged in as: {user.username}"; 
+            this.user = currUser;
+            user.reviews = repo.reviewRepository.GetAllAuthorReviews(user.id);
+            labUser.Text = $"Logged in as: {user.username} ({user.fullname})"; 
         }
         private static void OnQuit()
         {
@@ -106,33 +109,42 @@ namespace ConsoleApp
                 }
             }
         }
-        private static void OnCreateReviewButton()
+        private void OnCreateReviewButton()
         {
             CreateReviewDialog dialog = new CreateReviewDialog();
             dialog.SetRepositories(repo.reviewRepository, repo.filmRepository);
+            dialog.SetUser(user);
             Application.Run(dialog);
             if(!dialog.canceled)
             {
                 Review review = dialog.GetReview();
                 review.id = repo.reviewRepository.Insert(review);
+                user.reviews.Add(review);
             }
         }
         private static void OnPageFilmButton()
         {
             ShowFilmsWind wind = new ShowFilmsWind();
-            wind.SetRepositories(repo.filmRepository, repo.roleRepository, repo.actorRepository, repo.reviewRepository);
+            wind.SetService(repo);
             Application.Run(wind);
         }
         private static void OnPageActorButton()
         {
             ShowActorsWind wind = new ShowActorsWind();
-            wind.SetRepositories(repo.actorRepository, repo.roleRepository, repo.filmRepository);
+            wind.SetService(repo);
             Application.Run(wind);
         }
         private static void OnPageReviewButton()
         {
             ShowReviewsWind wind = new ShowReviewsWind();
             wind.SetRepository(repo.reviewRepository);
+            Application.Run(wind);
+        }
+        private void OnProfileButton()
+        {
+            ProfileWindow wind = new ProfileWindow();
+            wind.SetService(repo);
+            wind.SetUser(user);
             Application.Run(wind);
         }
     }

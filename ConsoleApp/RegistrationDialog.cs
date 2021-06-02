@@ -7,15 +7,16 @@ namespace ConsoleApp
     public class RegistrationDialog : Dialog
     {
         public bool canceled = false;
-        public User user;
+        private User user;
         private UserRepository userRepository;
         private TextField nameInp;
         private TextField surnameInp;
         private TextField usernameInp;
         private TextField passwordInp;
+        private TextField confirmPasswordInp;
         public RegistrationDialog()
         {
-            this.Title = ""; /* this.X = 42; this.Y = 2; */
+            this.Title = "";
             this.Width = 40; this.Height = 25;
             Button okBut = new Button("OK");
             okBut.Clicked += OnCreateDialogSubmit;
@@ -60,14 +61,25 @@ namespace ConsoleApp
             };
             passwordInp = new TextField("")
             {
-                X = 12, Y = Pos.Top(passwordLab), Width = Dim.Fill() -3
+                X = 12, Y = Pos.Top(passwordLab), Width = Dim.Fill() -3, Secret = true
             };
 
             this.Add(nameLab, nameInp, surnameLab,surnameInp, usernameLab,usernameInp, passwordLab, passwordInp);
 
+            Label confirmPasswordLab = new Label("Confirm:\n(password)")
+            {
+                X =1, Y = Pos.Bottom(passwordLab) + 1
+            };
+            confirmPasswordInp = new TextField("")
+            {
+                X = 12, Y = Pos.Top(confirmPasswordLab), Width = Dim.Fill() -3, Secret = true
+            };
+            this.Add(confirmPasswordLab, confirmPasswordInp);
+
+
             Label toSingIn = new Label("Already with us?")
             {
-                X = 5, Y = Pos.Top(passwordLab) +4
+                X = 5, Y = Pos.Top(confirmPasswordLab) +4
             };
             Button singInBut = new Button("Sing in")
             {
@@ -87,6 +99,11 @@ namespace ConsoleApp
             SingInDialog dialog = new SingInDialog();
             dialog.SetRepository(userRepository);
             Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                user = dialog.GetUser();
+                Application.RequestStop();
+            }
         }
         public void SetRepository(UserRepository userRepo)
         {
@@ -122,7 +139,11 @@ namespace ConsoleApp
                     error = "short password";
                     break;
                 }
-
+                if(passwordInp.Text.ToString() != confirmPasswordInp.Text.ToString())
+                {
+                    error = "different passwords";
+                    break;
+                }
                 user.fullname = nameInp.Text.ToString() + " " + surnameInp.Text.ToString();
                 user.username = usernameInp.Text.ToString();
                 user.password = passwordInp.Text.ToString();

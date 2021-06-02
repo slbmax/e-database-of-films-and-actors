@@ -22,7 +22,7 @@ namespace ClassLib
             user.password = hash;
             user.registrationDate = DateTime.Now;
             user.role = "user";
-            userRepository.Insert(user);
+            user.id = userRepository.Insert(user);
             return user;
         }
         public static User LogIn(string username, string password)

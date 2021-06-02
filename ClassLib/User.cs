@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 namespace ClassLib
 {
     public class User
@@ -9,6 +10,6 @@ namespace ClassLib
         public string fullname;
         public string role;
         public DateTime registrationDate;
-        public Review[] reviews;
+        public List<Review> reviews;
     }
 }
