@@ -4,6 +4,8 @@ using Microsoft.Data.Sqlite;
 using System.IO;
 using System.Data;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DataGenerator
 {
@@ -186,13 +188,10 @@ namespace DataGenerator
             }
             int amount = GetAmountOfEntities();
             DateTime createdAtL, createdAtH;
-            DateTime minDateUser = repo.userRepository.GetMinRegDate();
-            DateTime minDateFilm = repo.filmRepository.GetMinRegDate();
-            DateTime minDate = minDateUser>minDateFilm ? minDateUser : minDateFilm;
             while(true)
             {
-                Console.WriteLine($"Enter the range of reviews` creation date (only in range from {minDate.ToString("o")} to 2020)\n1 num:");
-                if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL<=minDate || createdAtL.Year>2020)
+                Console.WriteLine($"Enter the range of reviews` creation date (only in range from 2000 to 2020)\n1 num:");
+                if(!DateTime.TryParse(Console.ReadLine(), out createdAtL) || createdAtL.Year<2000 || createdAtL.Year>2020)
                 {
                     Console.Error.WriteLine("Error: invalid first date");
                     continue;
@@ -252,11 +251,13 @@ namespace DataGenerator
             int[] roles = new int[]{0,0,0,0,1,0,0,0,0};
             Random rand = new Random();
             TimeSpan range = regH - regL;
+            SHA256 sha256Hash = SHA256.Create();
             for(int i = 0; i<amount; i++)
             {
                 User user = new User();
                 user.username=usernames[rand.Next(0,usernames.Length)]+i;
-                user.password=passwords[rand.Next(0,passwords.Length)];
+                string hash = GetHash(sha256Hash,passwords[rand.Next(0,passwords.Length)]);
+                user.password=hash;
                 user.fullname=fullnames[rand.Next(0,fullnames.Length)];
                 int role = roles[rand.Next(0,roles.Length)];
                 if(role == 1)
@@ -330,6 +331,16 @@ namespace DataGenerator
                     }
                 }
             }
+        }
+        private static string GetHash(HashAlgorithm hashAlgorithm, string input)
+        {
+            byte[] data = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var sBuilder = new StringBuilder();
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
         }
     }
     class CurrentInsertedEntities
