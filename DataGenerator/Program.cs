@@ -220,7 +220,7 @@ namespace DataGenerator
                 TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
                 review.createdAt = createdAtL + randDate;
                 review.user_id = repo.userRepository.GetUserForReview(review);
-                review.film_id = repo.filmRepository.GetFilmForReview(review);
+                review.film_id = repo.filmRepository.GetFilmForReview();
                 repo.reviewRepository.Insert(review);
             }
             Console.WriteLine("Reviews were generated successfully");

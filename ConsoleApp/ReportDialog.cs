@@ -74,7 +74,6 @@ namespace ConsoleApp
             }
             if(error == "noerrors")
             {
-                MessageBox.Query("Report","Successfull","OK");
                 Application.RequestStop();
             }
             else

@@ -121,21 +121,15 @@ namespace ClassLib
             reader.Close();
             return films;
         }
-        public int GetFilmForReview(Review review)
+        public int GetFilmForReview()
         {
             List<Film> filmsList = GetAll();
             Film[] films = new Film[filmsList.Count];
             filmsList.CopyTo(films);
             Random rand = new Random();
             int randId = rand.Next(0,films.Length);
-            for(int i = randId+1; i<=films.Length; i++)
-            {
-                if(i == films.Length)
-                    i = 0;
-                if(films[i].releaseYear <= review.createdAt.Year)
-                    return films[i].id;
-            }
-            return films[0].id;
+            return films[randId].id;
+            
         }
         public DateTime GetMinRegDate()
         {
