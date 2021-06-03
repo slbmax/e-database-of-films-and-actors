@@ -24,7 +24,12 @@ namespace ClassLib
         }
         public override string ToString()
         {
-            return $"[{id}] {title} [{releaseYear}] -- {genre}";
+            string newCont = title;
+            if(newCont.Length > 55)
+            {
+                newCont = title.Substring(0, 55) + "...";
+            }
+            return $"[{id}] {newCont} [{releaseYear}] -- {genre}";
         }
     }
 }

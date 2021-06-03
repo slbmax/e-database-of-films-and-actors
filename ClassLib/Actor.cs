@@ -22,7 +22,12 @@ namespace ClassLib
         }
         public override string ToString()
         {
-            return $"[{id}] {fullname}, {age} -- {country}";
+            string newCont = fullname;
+            if(newCont.Length > 55)
+            {
+                newCont = fullname.Substring(0, 55) + "...";
+            }
+            return $"[{id}] {newCont}, {age} -- {country}";
         }
     }
 }

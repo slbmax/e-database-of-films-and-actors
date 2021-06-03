@@ -26,7 +26,12 @@ namespace ClassLib
         }
         public override string ToString()
         {
-            return $"[{id}] {content} [{rating}] -- {createdAt}";
+            string newCont = content;
+            if(newCont.Length > 55)
+            {
+                newCont = content.Substring(0, 55) + "...";
+            }
+            return $"[{id}] {newCont} [{rating}] -- {createdAt}";
         }
     }
 }

@@ -34,12 +34,13 @@ namespace ConsoleApp
                 currUser = dialog.GetUser();
                 MenuBar menu = new MenuBar(new MenuBarItem[] {
                     new MenuBarItem ("File", new MenuItem [] {
-                        new MenuItem ("Export","export reviews",null),
-                        new MenuItem ("Import","import reviews",null),
+                        new MenuItem ("Export"," -- export reviews",null),
+                        new MenuItem ("Import"," -- import reviews",null),
+                        new MenuItem ("Report","",OnReport),
                         new MenuItem ("Exit","",OnQuit)
                     }),
                     new MenuBarItem ("Help",new MenuItem [] {
-                        new MenuItem ("Help","",OnQuit)
+                        new MenuItem ("_About","",OnAboutButton)
                     })
                 });
                 MainWindow window = new MainWindow();
@@ -49,5 +50,23 @@ namespace ConsoleApp
                 Application.Run();
             }
         }      
+        private static void OnAboutButton()
+        {
+            ProgramInfo dialog = new ProgramInfo();
+            Application.Run(dialog);
+        }
+        private static void OnReport()
+        {
+            ReportDialog dialog = new ReportDialog();
+            dialog.SetService(repo);
+            Application.Run(dialog);
+            if(!dialog.canceled)
+            {
+                Film film = dialog.GetFilm();
+                string filePath = dialog.GetFilePath();
+                ReportGeneration.SetData(film, filePath);
+                ReportGeneration.Run();
+            }
+        }
     }
 }
