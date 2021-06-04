@@ -2,6 +2,7 @@ using Terminal.Gui;
 using System.Collections.Generic;
 using System.IO;
 using ClassLib;
+using RPC;
 namespace ConsoleApp
 {
     public class ShowReviewsWind : Window
@@ -10,7 +11,7 @@ namespace ConsoleApp
         private ListView allReviewsListView;
         private int pageSize = 10;
         private int page = 1;
-        private Service repository;
+        private RemoteService repository;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -59,7 +60,7 @@ namespace ConsoleApp
             ShowCurrPage();
         }
 
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
             this.repository = service;
             ShowCurrPage();
@@ -123,10 +124,6 @@ namespace ConsoleApp
             dialog.SetReview(review);
 
             Application.Run(dialog);
-            if(canceled)
-            {
-                return;
-            }
             if(dialog.deleted)
             {
                 repository.reviewRepository.DeleteById(review.id);

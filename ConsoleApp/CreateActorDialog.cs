@@ -2,6 +2,7 @@ using Terminal.Gui;
 using System;
 using System.Collections.Generic;
 using ClassLib;
+using RPC;
 namespace ConsoleApp
 {
     public class CreateActorDialog : Dialog
@@ -11,7 +12,7 @@ namespace ConsoleApp
         protected TextField actorCountryInp;
         protected TextField actorAgeInp;
         protected TextField actorRoles;
-        protected FilmRepository filmRepo;
+        protected RemoteFilmRepository filmRepo;
         protected int[] filmIntIds;
         
         public CreateActorDialog()
@@ -57,7 +58,7 @@ namespace ConsoleApp
 
             this.Add(remarkLbl);
         }
-        public void SetRepository(FilmRepository filmRepository)
+        public void SetRepository(RemoteFilmRepository filmRepository)
         {
             this.filmRepo = filmRepository;
         }

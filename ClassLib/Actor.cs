@@ -29,5 +29,21 @@ namespace ClassLib
             }
             return $"[{id}] {newCont}, {age} -- {country}";
         }
+        public string ActorCon()
+        {
+            string sep = "!";
+            string con = id+sep+fullname+sep+country+sep+age;
+            return con;
+        }
+        public static Actor Parse(string userToParse)
+        {
+            Actor actor = new Actor();
+            string[] arr = userToParse.Split("!");
+            actor.id = int.Parse(arr[0]);
+            actor.fullname=arr[1];
+            actor.country=arr[2];
+            actor.age=int.Parse(arr[3]);
+            return actor;
+        }
     }
 }

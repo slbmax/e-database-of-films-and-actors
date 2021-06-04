@@ -10,7 +10,7 @@ namespace ClassLib
         {
             this.connection = connection;
         }
-        private static Film GetFilm(SqliteDataReader reader)
+        private static Film GetFilm(SqliteDataReader reader)//------
         {
             Film film = new Film();
             film.id = int.Parse(reader.GetString(0));
@@ -19,7 +19,7 @@ namespace ClassLib
             film.releaseYear = int.Parse(reader.GetString(3));
             return film;
         }
-        public bool Update(Film film)
+        public bool Update(Film film)//-------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"UPDATE films SET title = $title, genre = $genre, releaseYear = $ry WHERE id = $id";
@@ -30,7 +30,7 @@ namespace ClassLib
             int nChanged = command.ExecuteNonQuery();
             return nChanged == 1;
         }
-        public Film GetById(int id)
+        public Film GetById(int id) //-------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM films WHERE id = $id";
@@ -45,7 +45,7 @@ namespace ClassLib
             reader.Close();
             return film;
         }
-        public int DeleteById(int id)
+        public int DeleteById(int id)//----------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"DELETE FROM films WHERE id = $id";
@@ -54,7 +54,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int Insert(Film film)
+        public int Insert(Film film)//----------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText =@"INSERT INTO films (title, genre, releaseYear)
@@ -66,38 +66,14 @@ namespace ClassLib
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
-        public int GetTotalPages()
-        {
-            const int pageSize = 10;
-            return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
-        }
-        public long GetCount()
+        public long GetCount()//----------
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM films";
             long count = (long)command.ExecuteScalar();
             return count;
         }
-        public List<Film> GetPage(int page)
-        {
-            const int pageSize = 10;
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM films LIMIT $pagesize OFFSET $offset";
-            command.Parameters.AddWithValue("$pagesize", pageSize);
-            command.Parameters.AddWithValue("$offset", pageSize*(page-1));
-
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Film> films = new List<Film>();
-            while(reader.Read())
-            {
-                Film film = GetFilm(reader);
-                
-                films.Add(film);
-            }
-            reader.Close();
-            return films;
-        }
-        public int GetSearchCount(string valueX)
+        public int GetSearchCount(string valueX)//----------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM films WHERE title LIKE '%' || $value || '%'";
@@ -106,7 +82,7 @@ namespace ClassLib
             long count = (long)command.ExecuteScalar();
             return (int)count;
         }
-        public List<Film> GetAll()
+        public List<Film> GetAll()//-------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM films";
@@ -121,33 +97,7 @@ namespace ClassLib
             reader.Close();
             return films;
         }
-        public int GetFilmForReview()
-        {
-            List<Film> filmsList = GetAll();
-            Film[] films = new Film[filmsList.Count];
-            filmsList.CopyTo(films);
-            Random rand = new Random();
-            int randId = rand.Next(0,films.Length);
-            return films[randId].id;
-            
-        }
-        public DateTime GetMinRegDate()
-        {
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT releaseYear FROM films";
-            SqliteDataReader reader = command.ExecuteReader();
-            DateTime min = DateTime.Now;
-            while(reader.Read())
-            {
-                int year = int.Parse(reader.GetString(0));
-                DateTime current = new DateTime(year,1,1);
-                if(current < min)
-                    min = current;
-            }
-            reader.Close();
-            return min;
-        }
-        public int[] GetAllIds()
+        public int[] GetAllIds()//-----
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT id FROM films";
@@ -162,12 +112,12 @@ namespace ClassLib
             ids.CopyTo(array);
             return array;
         }
-        public int GetSearchPagesCount(string searchTitle)
+        public int GetSearchPagesCount(string searchTitle)//----
         {
             const int pageSize = 10;
             return (int)Math.Ceiling(GetSearchCount(searchTitle) / (double)pageSize);
         }
-        public List<Film> GetSearchPage(string searchTitle, int page)
+        public List<Film> GetSearchPage(string searchTitle, int page)//--
         {
             const int pageSize = 10;
             SqliteCommand command = this.connection.CreateCommand();

@@ -114,8 +114,8 @@ namespace DataGenerator
             amount = GetAmountOfEntities();
             while(true)
             {
-                Console.WriteLine("Enter the range of actors` age (only in range from 4 to 95)\n1 num:");
-                if(!int.TryParse(Console.ReadLine(), out ageL) || ageL<=3 || ageL >94)
+                Console.WriteLine("Enter the range of actors` age (only in range from 20 to 95)\n1 num:");
+                if(!int.TryParse(Console.ReadLine(), out ageL) || ageL<=19 || ageL >94)
                 {
                     Console.Error.WriteLine("Error: invalid minimum age of actors");
                     continue;
@@ -219,7 +219,7 @@ namespace DataGenerator
                 TimeSpan randDate = new TimeSpan((long)(rand.NextDouble() * range.Ticks));
                 review.createdAt = createdAtL + randDate;
                 review.user_id = repo.userRepository.GetUserForReview(review);
-                review.film_id = repo.filmRepository.GetFilmForReview();
+                review.film_id = GetFilmForReview(repo.filmRepository);
                 repo.reviewRepository.Insert(review);
             }
             Console.WriteLine("Reviews were generated successfully");
@@ -341,6 +341,15 @@ namespace DataGenerator
                 sBuilder.Append(data[i].ToString("x2"));
             }
             return sBuilder.ToString();
+        }
+        public static int GetFilmForReview(FilmRepository filmRepository)
+        {
+            List<Film> filmsList = filmRepository.GetAll();
+            Film[] films = new Film[filmsList.Count];
+            filmsList.CopyTo(films);
+            Random rand = new Random();
+            int randId = rand.Next(0,films.Length);
+            return films[randId].id;
         }
     }
     class CurrentInsertedEntities

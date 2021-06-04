@@ -2,6 +2,7 @@ using Terminal.Gui;
 using System.Collections.Generic;
 using ClassLib;
 using System;
+using RPC;
 namespace ConsoleApp
 {
     public class ShowFilmsWind : Window
@@ -10,7 +11,7 @@ namespace ConsoleApp
         private ListView allFilmsListView;
         private int pageSize = 10;
         private int page = 1;
-        private Service service;
+        private RemoteService service;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -52,7 +53,7 @@ namespace ConsoleApp
             searchField.TextChanging += OnSearchEnter;
             this.Add(searchField);
         }
-        public void SetService(Service repo)
+        public void SetService(RemoteService repo)
         {
             this.service = repo;
             ShowCurrPage();

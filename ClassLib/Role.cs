@@ -11,5 +11,21 @@ namespace ClassLib
             this.actor_id =0;
             this.film_id =0;
         }
+        public string RoleCon()
+        {
+            string sep = "!";
+            string con = id+sep+actor_id+sep+film_id;
+            return con;
+        }
+        public static Role Parse(string userToParse)
+        {
+            Role role = new Role();
+            string[] arr = userToParse.Split("!");
+            role.id = int.Parse(arr[0]);
+            role.actor_id = int.Parse(arr[1]);
+            role.film_id = int.Parse(arr[2]);
+            
+            return role;
+        }
     }
 }

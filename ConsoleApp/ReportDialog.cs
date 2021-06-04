@@ -1,12 +1,12 @@
 using Terminal.Gui;
 using ClassLib;
 using System.IO;
-
+using RPC;
 namespace ConsoleApp
 {
     public class ReportDialog : Dialog
     {
-        private Service service;
+        private RemoteService service;
         private TextField inpId;
         private TextField inpPath;
         private Film film;
@@ -37,7 +37,7 @@ namespace ConsoleApp
             this.AddButton(okBut);
             this.Add(inpPath);
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
             this.service = service;
         }

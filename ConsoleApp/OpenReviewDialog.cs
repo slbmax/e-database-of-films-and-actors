@@ -1,5 +1,6 @@
 using Terminal.Gui;
 using ClassLib;
+using RPC;
 namespace ConsoleApp
 {
     public class OpenReviewDialog : Window
@@ -7,7 +8,7 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private Service service;
+        private RemoteService service;
         private TextView reviewContent;
         private Label reviewRating;
         private Label reviewDate;
@@ -31,6 +32,7 @@ namespace ConsoleApp
             {
                 X = posX, Y = Pos.Top(reviewContentLab), Width =Dim.Fill()-posX, Height = 5
             };
+            reviewContent.ReadOnly=true;
             this.Add(reviewContentLab,reviewContent);
 
             Label filmLabel = new Label(2,8,"For film:");
@@ -115,7 +117,7 @@ namespace ConsoleApp
         {
             return review;
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
             this.service= service;
         }

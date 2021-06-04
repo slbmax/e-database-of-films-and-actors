@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassLib\ClassLib.csproj" />
+    <ProjectReference Include="..\RPC\RPC.csproj" />
+    <ProjectReference Include="..\DataControl\DataControl.csproj" />
   </ItemGroup>
 
 </Project>

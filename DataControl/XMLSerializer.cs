@@ -3,12 +3,13 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using ClassLib;
+using RPC;
 
 namespace ClassLib
 {
     public static class XMLSerializer
     {
-        private static Service service;
+        private static RemoteService service;
         public static void Export(string filePath, List<Review> reviews)
         {
             XmlSerializer ser = new XmlSerializer(typeof(List<Review>));
@@ -16,7 +17,7 @@ namespace ClassLib
             ser.Serialize(writer, reviews);
             writer.Close();
         }
-        public static void SetService(Service ser)
+        public static void SetService(RemoteService ser)
         {
             service = ser;
         }
@@ -44,7 +45,7 @@ namespace ClassLib
                         continue;
                     else
                     {
-                        review.film_id = service.filmRepository.GetFilmForReview();
+                        review.film_id = GetFilmForReview();
                         service.reviewRepository.Insert(review);
                     }
                 }
@@ -55,5 +56,15 @@ namespace ClassLib
             return f.content == s.content && f.createdAt == s.createdAt &&
             f.rating == s.rating && f.user_id == s.user_id && f.film_id == s.film_id;
         }
+        public static int GetFilmForReview()
+        {
+            List<Film> filmsList = service.filmRepository.GetAll();
+            Film[] films = new Film[filmsList.Count];
+            filmsList.CopyTo(films);
+            Random rand = new Random();
+            int randId = rand.Next(0,films.Length);
+            return films[randId].id;
+        }
+        
     }
 }

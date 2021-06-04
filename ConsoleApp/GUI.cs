@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using ClassLib;
 using System;
+using RPC;
+using DataControl;
 namespace ConsoleApp
 {
     public static class GUI
     {
-        private static Service repo;
+        private static RemoteService repo;
         private static Toplevel top;
         private static User currUser;
         public static void RunInterface()
@@ -16,7 +18,7 @@ namespace ConsoleApp
             top = Application.Top;
             OnRegistration();
         }
-        public static void SetService(Service service)
+        public static void SetService(RemoteService service)
         {
             repo = service;
         }
@@ -104,7 +106,7 @@ namespace ConsoleApp
                 try{
                     XMLSerializer.Import(filePath, currUser.id);
                 } catch(Exception ex){
-                    MessageBox.ErrorQuery("Import",$"Invalid input file to import {ex.Message}", "OK");
+                    MessageBox.ErrorQuery("Import",$"Invalid input file to import", "OK");
                 }
             }
         }

@@ -2,13 +2,14 @@ using Terminal.Gui;
 using System;
 using System.IO;
 using ClassLib;
+using RPC;
 namespace ConsoleApp
 {
     public class CreateReviewDialog : Dialog
     {
         public bool canceled;
-        protected ReviewRepository reviewRepo;
-        protected FilmRepository filmRepo;
+        protected RemoteReviewRepository reviewRepo;
+        protected RemoteFilmRepository filmRepo;
         protected TextView reviewContentInp;
         protected TextField reviewRatingInp;
         protected TextField reviewFilmInp;
@@ -106,7 +107,7 @@ namespace ConsoleApp
                 user_id = user.id
             };
         }
-        public void SetRepositories(ReviewRepository repository, FilmRepository filmRepository)
+        public void SetRepositories(RemoteReviewRepository repository, RemoteFilmRepository filmRepository)
         {
             this.reviewRepo = repository;
             this.filmRepo = filmRepository;

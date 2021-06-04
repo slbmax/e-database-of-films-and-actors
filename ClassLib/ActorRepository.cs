@@ -19,22 +19,7 @@ namespace ClassLib
             actor.age = int.Parse(reader.GetString(3));
             return actor;
         }
-        public List<Actor> GetAll()
-        {
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM actors";
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Actor> actors = new List<Actor>();
-            while(reader.Read())
-            {
-                Actor actor = GetActor(reader);
-                
-                actors.Add(actor);
-            }
-            reader.Close();
-            return actors;
-        }
-        public Actor GetById(int id)
+        public Actor GetById(int id) //---------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM actors WHERE id = $id";
@@ -49,7 +34,7 @@ namespace ClassLib
             reader.Close();
             return actor;
         }
-        public int DeleteById(int id)
+        public int DeleteById(int id) //-----------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"DELETE FROM actors WHERE id = $id";
@@ -58,7 +43,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int Insert(Actor actor)
+        public int Insert(Actor actor)//--------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText =@"INSERT INTO actors (fullname, country, age)
@@ -70,36 +55,12 @@ namespace ClassLib
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
-        public int GetTotalPages()
-        {
-            const int pageSize = 10;
-            return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
-        }
         public long GetCount()
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM actors";
             long count = (long)command.ExecuteScalar();
             return count;
-        }
-        public List<Actor> GetPage(int page)
-        {
-            const int pageSize = 10;
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM actors LIMIT $pagesize OFFSET $offset";
-            command.Parameters.AddWithValue("$pagesize", pageSize);
-            command.Parameters.AddWithValue("$offset", pageSize*(page-1));
-
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Actor> actors = new List<Actor>();
-            while(reader.Read())
-            {
-                Actor actor = GetActor(reader);
-                
-                actors.Add(actor);
-            }
-            reader.Close();
-            return actors;
         }
         public int GetSearchCount(string valueX)
         {
@@ -110,7 +71,7 @@ namespace ClassLib
             long count = (long)command.ExecuteScalar();
             return (int)count;
         }
-        public bool Update(Actor actor)
+        public bool Update(Actor actor)//------
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"UPDATE actors SET fullname = $fullname, country = $country, age = $age WHERE id = $id";
@@ -137,12 +98,12 @@ namespace ClassLib
             return array;
         }
 
-        public int GetSearchPagesCount(string searchTitle)
+        public int GetSearchPagesCount(string searchTitle)//----
         {
             const int pageSize = 10;
             return (int)Math.Ceiling(GetSearchCount(searchTitle) / (double)pageSize);
         }
-        public List<Actor> GetSearchPage(string searchTitle, int page)
+        public List<Actor> GetSearchPage(string searchTitle, int page)//-------
         {
             const int pageSize = 10;
             SqliteCommand command = this.connection.CreateCommand();

@@ -18,7 +18,7 @@ namespace ClassLib
             role.film_id = int.Parse(reader.GetString(1));
             return role;
         }
-        public Role GetById(int id)
+        public Role GetById(int id)/////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM roles WHERE id = $id";
@@ -33,7 +33,7 @@ namespace ClassLib
             reader.Close();
             return role;
         }
-        public int DeleteFilmById(int id)
+        public int DeleteFilmById(int id)///////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = $"DELETE FROM roles WHERE film_id = $id";
@@ -41,7 +41,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int DeleteActorById(int id)
+        public int DeleteActorById(int id)/////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = $"DELETE FROM roles WHERE actor_id = $id";
@@ -49,7 +49,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int Insert(Role role)
+        public int Insert(Role role)/////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText =@"INSERT INTO roles (film_id, actor_id)
@@ -60,7 +60,7 @@ namespace ClassLib
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
-        private static Actor GetActor(SqliteDataReader reader)
+        private static Actor GetActor(SqliteDataReader reader)//
         {
             Actor actor = new Actor();
             actor.id = int.Parse(reader.GetString(0));
@@ -69,7 +69,7 @@ namespace ClassLib
             actor.age = int.Parse(reader.GetString(3));
             return actor;
         }
-        public Film[] GetAllFilms(int id)
+        public Film[] GetAllFilms(int id)////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText=@"SELECT films.id, title, genre, releaseYear
@@ -87,7 +87,7 @@ namespace ClassLib
             allFilms.CopyTo(films);
             return films;
         }
-        public Actor[] GetCast(int id)
+        public Actor[] GetCast(int id)/////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText=@"SELECT actors.id, fullname, country, age

@@ -1,6 +1,7 @@
 using Terminal.Gui;
 using ClassLib;
 using System.Collections.Generic;
+using RPC;
 namespace ConsoleApp
 {
     public class OpenFilmDialog : Window
@@ -8,7 +9,7 @@ namespace ConsoleApp
         public bool canceled;
         public bool deleted = false;
         public bool edited = false;
-        private Service service;
+        private RemoteService service;
         private Label filmTitle;
         private Label filmGenre;
         private Label filmYear;
@@ -216,7 +217,7 @@ namespace ConsoleApp
         {
             return actorIntIds;
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
             this.service = service;
         }

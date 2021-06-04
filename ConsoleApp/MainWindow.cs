@@ -2,11 +2,12 @@ using Terminal.Gui;
 using System.IO;
 using ClassLib;
 using System.Collections.Generic;
+using RPC;
 namespace ConsoleApp
 {
     public class MainWindow : Window
     {
-        private static Service repo;
+        private static RemoteService repo;
         private User user;
         private Label labUser; 
         private Button promote;
@@ -83,7 +84,7 @@ namespace ConsoleApp
             Application.Top.RemoveAll();
             GUI.OnRegistration();
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
            repo = service;
         }

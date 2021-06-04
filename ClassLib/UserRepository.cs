@@ -21,7 +21,7 @@ namespace ClassLib
             user.registrationDate = DateTime.Parse(reader.GetString(5));
             return user;
         }
-        public User GetById(int id)
+        public User GetById(int id)/////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM users WHERE id = $id";
@@ -36,7 +36,7 @@ namespace ClassLib
             reader.Close();
             return user;
         }
-        public int DeleteById(int id)
+        public int DeleteById(int id)///////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"DELETE FROM users WHERE id = $id";
@@ -45,7 +45,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int Insert(User user)
+        public int Insert(User user)/////////////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText =@"INSERT INTO users (username, password, fullname, role, registrationDate)
@@ -59,55 +59,14 @@ namespace ClassLib
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
-        public int GetTotalPages()
-        {
-            const int pageSize = 10;
-            return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
-        }
-        public long GetCount()
+        public long GetCount()//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         {
             SqliteCommand command = connection.CreateCommand();
             command.CommandText = @"SELECT COUNT(*) FROM users";
             long count = (long)command.ExecuteScalar();
             return count;
         }
-        public List<User> GetPage(int page)
-        {
-            const int pageSize = 10;
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM users LIMIT $pagesize OFFSET $offset";
-            command.Parameters.AddWithValue("$pagesize", pageSize);
-            command.Parameters.AddWithValue("$offset", pageSize*(page-1));
-
-            SqliteDataReader reader = command.ExecuteReader();
-            List<User> users = new List<User>();
-            while(reader.Read())
-            {
-                User user = new User();
-                
-                users.Add(user);
-            }
-            reader.Close();
-            return users;
-        }
-        public List<User> GetExport(string valueX)
-        {
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM users WHERE user LIKE $valueX";
-            command.Parameters.AddWithValue("$valueX", valueX);
-
-            SqliteDataReader reader = command.ExecuteReader();
-            List<User> usersToExport = new List<User>();
-            while(reader.Read())
-            {
-                User user = GetUser(reader);
-                
-                usersToExport.Add(user);
-            }
-            reader.Close();
-            return usersToExport;
-        }
-        public User[] GetAll()
+        public User[] GetAll()//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM users";
@@ -124,7 +83,7 @@ namespace ClassLib
             users.CopyTo(array);
             return array;
         }
-        public int GetUserForReview(Review review)
+        public int GetUserForReview(Review review)//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         {
             User[] users = GetAll();
             Random rand = new Random();
@@ -137,21 +96,6 @@ namespace ClassLib
                     return users[i].id;
             }
             return users[0].id;
-        }
-        public DateTime GetMinRegDate()
-        {
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT registrationDate FROM users";
-            SqliteDataReader reader = command.ExecuteReader();
-            DateTime min = DateTime.Now;
-            while(reader.Read())
-            {
-                DateTime current = DateTime.Parse(reader.GetString(0));
-                if(current < min)
-                    min = current;
-            }
-            reader.Close();
-            return min;
         }
         public User GetByUsername(string username)
         {

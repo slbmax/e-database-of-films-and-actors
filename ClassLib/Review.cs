@@ -33,5 +33,23 @@ namespace ClassLib
             }
             return $"[{id}] {newCont} [{rating}] -- {createdAt}";
         }
+        public string ReviewCon()
+        {
+            string sep = "!";
+            string con = id+sep+content+sep+rating+sep+createdAt+sep+user_id+sep+film_id;
+            return con;
+        }
+        public static Review Parse(string userToParse)
+        {
+            Review review = new Review();
+            string[] arr = userToParse.Split("!");
+            review.id = int.Parse(arr[0]);
+            review.content = arr[1];
+            review.rating = int.Parse(arr[2]);
+            review.createdAt = DateTime.Parse(arr[3]);
+            review.user_id = int.Parse(arr[4]);
+            review.film_id = int.Parse(arr[5]);
+            return review;
+        }
     }
 }

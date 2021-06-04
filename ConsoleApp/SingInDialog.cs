@@ -1,11 +1,13 @@
 using Terminal.Gui;
 using System;
 using ClassLib;
+using RPC;
+using DataControl;
 namespace ConsoleApp
 {
     public class SingInDialog : Dialog
     {
-        private UserRepository userRepository;
+        private RemoteUserRepository userRepository;
         public bool canceled = false;
         private TextField usernameInp;
         private TextField passwordInp;
@@ -48,7 +50,7 @@ namespace ConsoleApp
             this.canceled = true;
             Application.RequestStop();
         }
-        public void SetRepository(UserRepository userRepo)
+        public void SetRepository(RemoteUserRepository userRepo)
         {
             userRepository = userRepo;
         }

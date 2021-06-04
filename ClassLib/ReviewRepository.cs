@@ -21,7 +21,7 @@ namespace ClassLib
             review.film_id = int.Parse(reader.GetString(5));
             return review;
         }
-        public Review GetById(int id)
+        public Review GetById(int id) /////////////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM reviews WHERE id = $id";
@@ -36,7 +36,7 @@ namespace ClassLib
             reader.Close();
             return review;
         }
-        public bool Update(Review review)
+        public bool Update(Review review)/////////////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             string newContent = review.content.Replace("\r","");
@@ -48,7 +48,7 @@ namespace ClassLib
             int nChanged = command.ExecuteNonQuery();
             return nChanged == 1;
         }
-        public int DeleteById(int id)
+        public int DeleteById(int id)/////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"DELETE FROM reviews WHERE id = $id";
@@ -57,7 +57,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int DeleteByFilmId(int id)
+        public int DeleteByFilmId(int id)////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"DELETE FROM reviews WHERE film_id = $id";
@@ -66,7 +66,7 @@ namespace ClassLib
             int result = command.ExecuteNonQuery();
             return result;
         }
-        public int Insert(Review review)
+        public int Insert(Review review)////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText =@"INSERT INTO reviews (content, rating, createdAt, user_id, film_id)
@@ -80,37 +80,6 @@ namespace ClassLib
             long newId = (long)command.ExecuteScalar();
             return (int)newId;
         }
-        public int GetTotalPages()
-        {
-            const int pageSize = 10;
-            return (int)Math.Ceiling(this.GetCount() / (double)pageSize);
-        }
-        private long GetCount()
-        {
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT COUNT(*) FROM reviews";
-            long count = (long)command.ExecuteScalar();
-            return count;
-        }
-        public List<Review> GetPage(int page)
-        {
-            const int pageSize = 10;
-            SqliteCommand command = this.connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM reviews LIMIT $pagesize OFFSET $offset";
-            command.Parameters.AddWithValue("$pagesize", pageSize);
-            command.Parameters.AddWithValue("$offset", pageSize*(page-1));
-
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Review> reviews = new List<Review>();
-            while(reader.Read())
-            {
-                Review review = GetReview(reader);
-                
-                reviews.Add(review);
-            }
-            reader.Close();
-            return reviews;
-        }
         public int GetSearchCount(string valueX)
         {
             SqliteCommand command = this.connection.CreateCommand();
@@ -120,7 +89,7 @@ namespace ClassLib
             long count = (long)command.ExecuteScalar();
             return (int)count;
         }
-        public List<Review> GetAllAuthorReviews(int id)
+        public List<Review> GetAllAuthorReviews(int id)////////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM reviews WHERE user_id = $id";
@@ -136,7 +105,7 @@ namespace ClassLib
             reader.Close();
             return userReviews;
         }
-        public List<Review> GetAllFilmReviews(int id)
+        public List<Review> GetAllFilmReviews(int id)///////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT * FROM reviews WHERE film_id = $id";
@@ -155,12 +124,12 @@ namespace ClassLib
             
             return filmReviews;
         }
-        public int GetSearchPagesCount(string searchTitle)
+        public int GetSearchPagesCount(string searchTitle)///////////
         {
             const int pageSize = 10;
             return (int)Math.Ceiling(GetSearchCount(searchTitle) / (double)pageSize);
         }
-        public List<Review> GetSearchPage(string searchTitle, int page)
+        public List<Review> GetSearchPage(string searchTitle, int page)///////
         {
             const int pageSize = 10;
             SqliteCommand command = this.connection.CreateCommand();
@@ -178,7 +147,7 @@ namespace ClassLib
             reader.Close();
             return reviews;
         }
-        public double GetFilmRating(int id)
+        public double GetFilmRating(int id)//////
         {
             SqliteCommand command = this.connection.CreateCommand();
             command.CommandText = @"SELECT rating FROM reviews WHERE film_id = $id";

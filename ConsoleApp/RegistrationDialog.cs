@@ -2,13 +2,15 @@ using Terminal.Gui;
 using ClassLib;
 using System;
 using System.IO;
+using RPC;
+using DataControl;
 namespace ConsoleApp
 {
     public class RegistrationDialog : Dialog
     {
         public bool canceled = false;
         private User user;
-        private UserRepository userRepository;
+        private RemoteUserRepository userRepository;
         private TextField nameInp;
         private TextField surnameInp;
         private TextField usernameInp;
@@ -105,7 +107,7 @@ namespace ConsoleApp
                 Application.RequestStop();
             }
         }
-        public void SetRepository(UserRepository userRepo)
+        public void SetRepository(RemoteUserRepository userRepo)
         {
             userRepository = userRepo;
         }

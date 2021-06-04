@@ -1,6 +1,7 @@
 using Terminal.Gui;
 using System.Collections.Generic;
 using ClassLib;
+using RPC;
 namespace ConsoleApp
 {
     public class ShowActorsWind : Window
@@ -9,7 +10,7 @@ namespace ConsoleApp
         private ListView allActorsListView;
         private int pageSize = 10;
         private int page = 1;
-        private Service service;
+        private RemoteService service;
         public Label pagesLabelCur;
         public Label pagesLabelAll;
         private Button nextPageButton;
@@ -57,7 +58,7 @@ namespace ConsoleApp
             page = 1;
             ShowCurrPage();
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
             this.service = service;
             ShowCurrPage();

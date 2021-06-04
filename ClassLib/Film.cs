@@ -31,5 +31,21 @@ namespace ClassLib
             }
             return $"[{id}] {newCont} [{releaseYear}] -- {genre}";
         }
+        public string FilmCon()
+        {
+            string sep = "!";
+            string con = id+sep+title+sep+genre+sep+releaseYear;
+            return con;
+        }
+        public static Film Parse(string userToParse)
+        {
+            Film film = new Film();
+            string[] arr = userToParse.Split("!");
+            film.id = int.Parse(arr[0]);
+            film.title = arr[1];
+            film.genre = arr[2];
+            film.releaseYear = int.Parse(arr[3]);
+            return film;
+        }
     }
 }

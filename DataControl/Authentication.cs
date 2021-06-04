@@ -1,12 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
 using System;
-namespace ClassLib
+using ClassLib;
+using RPC;
+namespace DataControl
 {
     public static class Authentication
     {
-        public static UserRepository userRepository;
-        public static void SetRepo(UserRepository userRepo)
+        public static RemoteUserRepository userRepository;
+        public static void SetRepo(RemoteUserRepository userRepo)
         {
             userRepository = userRepo;
         }

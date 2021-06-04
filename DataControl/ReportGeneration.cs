@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using ScottPlot;
 using System.IO;
-namespace ClassLib
+using ClassLib;
+using RPC;
+namespace DataControl
 {
     public static class ReportGeneration
     {
         private static Film film;
-        private static UserRepository repo;
+        private static RemoteUserRepository repo;
         private static string filePath;
         private static string filmRating;
         public static void Run()
@@ -47,7 +49,7 @@ namespace ClassLib
 
             Directory.Delete(@".\..\data\example",true);
         }
-        public static void SetData(Film filmToGraph, string path, double rating, UserRepository userRepo)
+        public static void SetData(Film filmToGraph, string path, double rating, RemoteUserRepository userRepo)
         {
             film = filmToGraph;
             filePath = path;

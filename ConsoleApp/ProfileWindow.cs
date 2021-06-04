@@ -2,13 +2,14 @@ using ClassLib;
 using Terminal.Gui;
 using System;
 using System.Collections.Generic;
+using RPC;
 namespace ConsoleApp
 {
     public class ProfileWindow : Window 
     {
         public bool canceled = false;
         private ListView allReviewsListView;
-        private Service service;
+        private RemoteService service;
         private Label username;
         private Label fullname;
         private Label role;
@@ -103,11 +104,7 @@ namespace ConsoleApp
             dialog.SetReview(review);
             dialog.SetUser(user);
             Application.Run(dialog);
-            if(dialog.canceled)
-            {
-                return;
-            }
-            else if(dialog.deleted)
+            if(dialog.deleted)
             {
                 service.reviewRepository.DeleteById(review.id);
                 MessageBox.Query("Delete review","Review was deleted succesfully","OK");
@@ -120,11 +117,11 @@ namespace ConsoleApp
                 newReview.id = review.id;
                 newReview.createdAt = review.createdAt;
                 service.reviewRepository.Update(newReview);
-                MessageBox.Query("Edit review","Review was edited succesfully","OK");
+                /* MessageBox.Query("Edit review","Review was edited succesfully","OK"); */
                 allReviewsListView.SetSource(service.reviewRepository.GetAllAuthorReviews(user.id));
             }
         }
-        public void SetService(Service service)
+        public void SetService(RemoteService service)
         {
            this.service = service;
         }
