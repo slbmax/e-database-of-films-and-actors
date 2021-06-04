@@ -5,7 +5,7 @@ namespace ClassLib
 {
     public class FilmRepository
     {
-         private SqliteConnection connection;
+        private SqliteConnection connection;
         public FilmRepository(SqliteConnection connection)
         {
             this.connection = connection;

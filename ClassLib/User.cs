@@ -13,14 +13,15 @@ namespace ClassLib
         public List<Review> reviews;
         public string UserCon()
         {
-            string sep = "!";
+            string sep = "!-!-!-!-!";
             string con = id+sep+username+sep+password+sep+fullname+sep+role+sep+registrationDate+sep;
             return con;
         }
         public static User Parse(string userToParse)
         {
             User user = new User();
-            string[] arr = userToParse.Split("!");
+            string sep = "!-!-!-!-!";
+            string[] arr = userToParse.Split(sep);
             user.id = int.Parse(arr[0]);
             user.username = arr[1];
             user.password = arr[2];

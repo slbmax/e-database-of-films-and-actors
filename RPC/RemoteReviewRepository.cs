@@ -20,7 +20,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetById",
+                method = "reviewRepository.GetById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -32,7 +32,7 @@ namespace RPC
             string[] parametrs = new string[] { review.ReviewCon() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.Update",
+                method = "reviewRepository.Update",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -44,7 +44,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.DeleteById",
+                method = "reviewRepository.DeleteById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -56,7 +56,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.DeleteByFilmId",
+                method = "reviewRepository.DeleteByFilmId",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -68,7 +68,7 @@ namespace RPC
             string[] parametrs = new string[] { review.ReviewCon() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.Insert",
+                method = "reviewRepository.Insert",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -80,7 +80,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetAllAuthorReviews",
+                method = "reviewRepository.GetAllAuthorReviews",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -92,7 +92,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetAllFilmReviews",
+                method = "reviewRepository.GetAllFilmReviews",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -104,7 +104,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetSearchPagesCount",
+                method = "reviewRepository.GetSearchPagesCount",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -116,7 +116,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle, page.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetSearchPage",
+                method = "reviewRepository.GetSearchPage",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -128,7 +128,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "reviewRepository.GetFilmRating",
+                method = "reviewRepository.GetFilmRating",
                 methodParametrs = parametrs,
             };
             SendRequest(request);

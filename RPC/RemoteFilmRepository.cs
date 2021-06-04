@@ -20,7 +20,7 @@ namespace RPC
             string[] parametrs = new string[] { film.FilmCon() };
             Request request = new Request()
             {
-                methodName = "filmRepository.Update",
+                method = "filmRepository.Update",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -32,7 +32,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetById",
+                method = "filmRepository.GetById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -44,7 +44,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "filmRepository.DeleteById",
+                method = "filmRepository.DeleteById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -56,7 +56,7 @@ namespace RPC
             string[] parametrs = new string[] { film.FilmCon() };
             Request request = new Request()
             {
-                methodName = "filmRepository.Insert",
+                method = "filmRepository.Insert",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -68,7 +68,7 @@ namespace RPC
             string[] parametrs = new string[] { "" };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetCount",
+                method = "filmRepository.GetCount",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -80,7 +80,7 @@ namespace RPC
             string[] parametrs = new string[] { valueX };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetSearchCount",
+                method = "filmRepository.GetSearchCount",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -92,7 +92,7 @@ namespace RPC
             string[] parametrs = new string[] { "" };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetAllIds",
+                method = "filmRepository.GetAllIds",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -104,7 +104,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetSearchPagesCount",
+                method = "filmRepository.GetSearchPagesCount",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -116,7 +116,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle, page.ToString() };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetSearchPage",
+                method = "filmRepository.GetSearchPage",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -128,7 +128,7 @@ namespace RPC
             string[] parametrs = new string[] { "" };
             Request request = new Request()
             {
-                methodName = "filmRepository.GetAll",
+                method = "filmRepository.GetAll",
                 methodParametrs = parametrs,
             };
             SendRequest(request);

@@ -150,8 +150,8 @@ namespace ConsoleApp
                 user.username = usernameInp.Text.ToString();
                 user.password = passwordInp.Text.ToString();
                 try{
-                    Authentication.SetRepo(userRepository);
-                    user = Authentication.Registration(user);
+                    Authentification.SetRepo(userRepository);
+                    user = Authentification.Registration(user);
                 }
                 catch (Exception ex){
                     error = ex.Message.ToString();

@@ -39,7 +39,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "userRepository.GetById",
+                method = "userRepository.GetById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -51,7 +51,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "userRepository.DeleteById",
+                method = "userRepository.DeleteById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -63,7 +63,7 @@ namespace RPC
             string[] parametrs = new string[] { user.UserCon() };
             Request request = new Request()
             {
-                methodName = "userRepository.Insert",
+                method = "userRepository.Insert",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -75,7 +75,7 @@ namespace RPC
             string[] parametrs = new string[] { username };
             Request request = new Request()
             {
-                methodName = "userRepository.GetByUsername",
+                method = "userRepository.GetByUsername",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -87,7 +87,7 @@ namespace RPC
             string[] parametrs = new string[] { user.UserCon() };
             Request request = new Request()
             {
-                methodName = "userRepository.Update",
+                method = "userRepository.Update",
                 methodParametrs = parametrs,
             };
             SendRequest(request);

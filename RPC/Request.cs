@@ -11,7 +11,7 @@ namespace RPC
     [XmlRoot("request")]
     public class Request
     {
-        public string methodName;       
+        public string method;       
         public string[] methodParametrs;
     }
 }

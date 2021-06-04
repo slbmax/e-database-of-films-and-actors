@@ -5,7 +5,6 @@ namespace ConsoleApp
 {
     public class ExportDialog : ReportDialog
     {
-        
         public ExportDialog()
         {
             this.Title = "Export reviews";

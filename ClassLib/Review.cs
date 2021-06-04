@@ -35,14 +35,15 @@ namespace ClassLib
         }
         public string ReviewCon()
         {
-            string sep = "!";
+            string sep = "!-!-!-!-!";
             string con = id+sep+content+sep+rating+sep+createdAt+sep+user_id+sep+film_id;
             return con;
         }
         public static Review Parse(string userToParse)
         {
+            string sep = "!-!-!-!-!";
             Review review = new Review();
-            string[] arr = userToParse.Split("!");
+            string[] arr = userToParse.Split(sep);
             review.id = int.Parse(arr[0]);
             review.content = arr[1];
             review.rating = int.Parse(arr[2]);

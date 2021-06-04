@@ -147,8 +147,8 @@ namespace DataGenerator
             amount = GetAmountOfEntities();
             while(true)
             {
-                Console.WriteLine("Enter the range of films` release year (only in range from 1910 to 2021)\n1 num:");
-                if(!int.TryParse(Console.ReadLine(), out releaseYearsL) || releaseYearsL<1910 || releaseYearsL>2021)
+                Console.WriteLine("Enter the range of films` release year (only in range from 2000 to 2020)\n1 num:");
+                if(!int.TryParse(Console.ReadLine(), out releaseYearsL) || releaseYearsL<2000 || releaseYearsL>2020)
                 {
                     Console.Error.WriteLine("Error: invalid minimum year parameter");
                     continue;

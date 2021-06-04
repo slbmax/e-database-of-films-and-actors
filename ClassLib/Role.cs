@@ -13,14 +13,15 @@ namespace ClassLib
         }
         public string RoleCon()
         {
-            string sep = "!";
+            string sep = "!-!-!-!-!";
             string con = id+sep+actor_id+sep+film_id;
             return con;
         }
         public static Role Parse(string userToParse)
         {
+            string sep = "!-!-!-!-!";
             Role role = new Role();
-            string[] arr = userToParse.Split("!");
+            string[] arr = userToParse.Split(sep);
             role.id = int.Parse(arr[0]);
             role.actor_id = int.Parse(arr[1]);
             role.film_id = int.Parse(arr[2]);

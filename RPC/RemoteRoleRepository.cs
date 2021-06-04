@@ -20,7 +20,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "roleRepository.GetById",
+                method = "roleRepository.GetById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -32,7 +32,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "roleRepository.DeleteFilmById",
+                method = "roleRepository.DeleteFilmById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -44,7 +44,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "roleRepository.DeleteActorById",
+                method = "roleRepository.DeleteActorById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -56,7 +56,7 @@ namespace RPC
             string[] parametrs = new string[] { role.RoleCon() };
             Request request = new Request()
             {
-                methodName = "roleRepository.Insert",
+                method = "roleRepository.Insert",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -68,7 +68,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "roleRepository.GetAllFilms",
+                method = "roleRepository.GetAllFilms",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -80,7 +80,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "roleRepository.GetCast",
+                method = "roleRepository.GetCast",
                 methodParametrs = parametrs,
             };
             SendRequest(request);

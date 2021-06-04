@@ -71,8 +71,8 @@ namespace ConsoleApp
                     break;
                 }
                 try{
-                    Authentication.SetRepo(userRepository);
-                    user = Authentication.LogIn(usernameInp.Text.ToString(), passwordInp.Text.ToString());
+                    Authentification.SetRepo(userRepository);
+                    user = Authentification.LogIn(usernameInp.Text.ToString(), passwordInp.Text.ToString());
                 }
                 catch (Exception ex){
                     error = ex.Message.ToString();

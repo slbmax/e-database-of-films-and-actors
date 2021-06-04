@@ -58,18 +58,18 @@ namespace Server
                         if(xmlRequest.IndexOf("</request>")>-1) break;
                     }
                     Request request = ServerSerializer.DeserlizeRequest(xmlRequest);
-                    Console.WriteLine($"{handler.RemoteEndPoint} --> {request.methodName}");
+                    Console.WriteLine($"{handler.RemoteEndPoint} --> {request.method}");
                     try
                     {
-                        if(request.methodName.StartsWith("user"))
+                        if(request.method.StartsWith("user"))
                             uProc.ProcessRequest(request);
-                        if(request.methodName.StartsWith("film"))
+                        if(request.method.StartsWith("film"))
                             fProc.ProcessRequest(request);
-                        if(request.methodName.StartsWith("actor"))
+                        if(request.method.StartsWith("actor"))
                             aProc.ProcessRequest(request);
-                        if(request.methodName.StartsWith("review"))
+                        if(request.method.StartsWith("review"))
                             rProc.ProcessRequest(request);
-                        if(request.methodName.StartsWith("role"))
+                        if(request.method.StartsWith("role"))
                             roleProc.ProcessRequest(request);
                     }
                     catch
@@ -82,7 +82,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Unexpected exception : {0}", ex.ToString());
+                Console.WriteLine("Unexpected exception : {0}", ex.Message);
                 Console.WriteLine($"{handler.RemoteEndPoint} was disconnected");
             }
         }

@@ -43,7 +43,7 @@ namespace ConsoleApp
                         new MenuItem ("Exit","",OnQuit)
                     }),
                     new MenuBarItem ("Help",new MenuItem [] {
-                        new MenuItem ("_About","",OnAboutButton)
+                        new MenuItem ("About","",OnAboutButton)
                     })
                 });
                 MainWindow window = new MainWindow();
@@ -73,7 +73,6 @@ namespace ConsoleApp
                 ReportGeneration.Run();
                 MessageBox.Query("Report","Report was generated successfull","OK");
             }
-
         }
         private static void OnExport()
         {
@@ -105,7 +104,8 @@ namespace ConsoleApp
                 XMLSerializer.SetService(repo);
                 try{
                     XMLSerializer.Import(filePath, currUser.id);
-                } catch(Exception ex){
+                    MessageBox.Query("Import reviews","Import was successfull","OK");
+                } catch{
                     MessageBox.ErrorQuery("Import",$"Invalid input file to import", "OK");
                 }
             }

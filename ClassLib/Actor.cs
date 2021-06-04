@@ -31,14 +31,15 @@ namespace ClassLib
         }
         public string ActorCon()
         {
-            string sep = "!";
+            string sep = "!-!-!-!-!";
             string con = id+sep+fullname+sep+country+sep+age;
             return con;
         }
         public static Actor Parse(string userToParse)
         {
+            string sep = "!-!-!-!-!";
             Actor actor = new Actor();
-            string[] arr = userToParse.Split("!");
+            string[] arr = userToParse.Split(sep);
             actor.id = int.Parse(arr[0]);
             actor.fullname=arr[1];
             actor.country=arr[2];

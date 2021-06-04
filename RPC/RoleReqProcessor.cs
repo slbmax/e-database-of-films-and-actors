@@ -18,7 +18,7 @@ namespace RPC
         }
         public void ProcessRequest(Request request)
         {
-            switch(request.methodName)
+            switch(request.method)
             {
                 case "roleRepository.GetById":
                     ProcessGetById(request);

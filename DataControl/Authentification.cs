@@ -5,7 +5,7 @@ using ClassLib;
 using RPC;
 namespace DataControl
 {
-    public static class Authentication
+    public static class Authentification
     {
         public static RemoteUserRepository userRepository;
         public static void SetRepo(RemoteUserRepository userRepo)

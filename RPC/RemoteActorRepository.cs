@@ -20,7 +20,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "actorRepository.GetById",
+                method = "actorRepository.GetById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -32,7 +32,7 @@ namespace RPC
             string[] parametrs = new string[] { id.ToString() };
             Request request = new Request()
             {
-                methodName = "actorRepository.DeleteById",
+                method = "actorRepository.DeleteById",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -44,7 +44,7 @@ namespace RPC
             string[] parametrs = new string[] { actor.ActorCon() };
             Request request = new Request()
             {
-                methodName = "actorRepository.Insert",
+                method = "actorRepository.Insert",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -56,7 +56,7 @@ namespace RPC
             string[] parametrs = new string[] { actor.ActorCon() };
             Request request = new Request()
             {
-                methodName = "actorRepository.Update",
+                method = "actorRepository.Update",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -68,7 +68,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle };
             Request request = new Request()
             {
-                methodName = "actorRepository.GetSearchPagesCount",
+                method = "actorRepository.GetSearchPagesCount",
                 methodParametrs = parametrs,
             };
             SendRequest(request);
@@ -80,7 +80,7 @@ namespace RPC
             string[] parametrs = new string[] { searchTitle, page.ToString() };
             Request request = new Request()
             {
-                methodName = "actorRepository.GetSearchPage",
+                method = "actorRepository.GetSearchPage",
                 methodParametrs = parametrs,
             };
             SendRequest(request);

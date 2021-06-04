@@ -33,14 +33,15 @@ namespace ClassLib
         }
         public string FilmCon()
         {
-            string sep = "!";
+            string sep = "!-!-!-!-!";
             string con = id+sep+title+sep+genre+sep+releaseYear;
             return con;
         }
         public static Film Parse(string userToParse)
         {
             Film film = new Film();
-            string[] arr = userToParse.Split("!");
+            string sep = "!-!-!-!-!";
+            string[] arr = userToParse.Split(sep);
             film.id = int.Parse(arr[0]);
             film.title = arr[1];
             film.genre = arr[2];
